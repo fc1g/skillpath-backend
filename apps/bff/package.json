@@ -1,0 +1,10 @@
+{
+  "name": "bff",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/bff/main.js",
+  "license": "ISC",
+  "packageManager": "pnpm@10.20.0",
+  "dependencies": {},
+  "devDependencies": {}
+}
