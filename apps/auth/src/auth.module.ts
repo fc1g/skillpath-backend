@@ -22,6 +22,9 @@ import { UsersModule } from './users/users.module';
 			validationSchemas: [
 				Joi.object({
 					HTTP_PORT: Joi.number().port().required(),
+
+					DATABASE_ADMIN_EMAIL: Joi.string().email().required(),
+					DATABASE_ADMIN_PASSWORD: Joi.string().required(),
 				}),
 				baseSchema,
 				databaseSchema,

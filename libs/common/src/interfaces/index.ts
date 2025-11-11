@@ -1,1 +1,1 @@
-export * from './class-constructor';
+export * from './class-constructor.interface';
