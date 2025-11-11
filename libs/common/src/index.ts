@@ -7,3 +7,5 @@ export * from './redis';
 export * from './interfaces';
 export * from './interceptors';
 export * from './decorators';
+export * from './entities';
+export * from './dto';

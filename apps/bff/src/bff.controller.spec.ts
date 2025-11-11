@@ -15,7 +15,7 @@ describe('BffController', () => {
 	});
 
 	describe('root', () => {
-		it('should return "Hello World!"', () => {
+		it('should be defined', () => {
 			expect(bffController).toBeDefined();
 		});
 	});
