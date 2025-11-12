@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { NotFoundException } from '@nestjs/common';
-import { UpdateUserDto } from '@app/common';
+import { Role, RoleType, UpdateUserDto, UpdateUserRolesDto } from '@app/common';
 
 type MockService = Partial<Record<keyof UsersService, jest.Mock>>;
 
@@ -11,6 +11,7 @@ const createMockService = (): MockService => ({
 	find: jest.fn(),
 	findOne: jest.fn(),
 	update: jest.fn(),
+	updateUserRoles: jest.fn(),
 	remove: jest.fn(),
 });
 
@@ -117,6 +118,59 @@ describe('UsersController', () => {
 				await expect(controller.update(id, updateUserDto)).rejects.toThrow(
 					'User not found',
 				);
+			});
+		});
+	});
+
+	describe('updateUserRoles', () => {
+		const updateUserRolesDto: UpdateUserRolesDto = {
+			add: [RoleType.ADMIN],
+			remove: [RoleType.ADMIN],
+		};
+		const currentRoles: Role[] = [
+			{
+				id: '1',
+				name: RoleType.USER,
+				users: [],
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			},
+		];
+
+		describe('when user exists and payload is valid', () => {
+			it('should call UsersService.updateUserRoles and return updated user', async () => {
+				// 	Arrange
+				const id = '1';
+				const expectedUser = { id, currentRoles };
+				usersService.updateUserRoles?.mockResolvedValue(expectedUser);
+
+				// 	Act
+				const user = await controller.updateUserRoles(id, updateUserRolesDto);
+
+				// 	Assert
+				expect(usersService.updateUserRoles).toHaveBeenCalledWith(
+					id,
+					updateUserRolesDto,
+				);
+				expect(user).toEqual(expectedUser);
+			});
+		});
+
+		describe('when UsersService.updateUserRoles throws NotFoundException', () => {
+			it('should propagate NotFoundException', async () => {
+				// 	Arrange
+				const id = '1';
+				usersService.updateUserRoles?.mockRejectedValue(
+					new NotFoundException('User not found'),
+				);
+
+				// 	Assert
+				await expect(
+					controller.updateUserRoles(id, updateUserRolesDto),
+				).rejects.toBeInstanceOf(NotFoundException);
+				await expect(
+					controller.updateUserRoles(id, updateUserRolesDto),
+				).rejects.toThrow('User not found');
 			});
 		});
 	});

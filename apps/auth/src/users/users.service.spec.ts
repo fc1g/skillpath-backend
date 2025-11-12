@@ -14,8 +14,10 @@ import {
 	CreateUserDto,
 	DEFAULT_TAKE,
 	POSTGRES_UNIQUE_VIOLATION,
+	Role,
 	RoleType,
 	UpdateUserDto,
+	UpdateUserRolesDto,
 } from '@app/common';
 import * as bcrypt from 'bcryptjs';
 
@@ -31,6 +33,7 @@ const createMockUsersRepository = (): MockUsersRepository => ({
 });
 
 const createMockRolesService = (): MockRolesService => ({
+	applyRoleChanges: jest.fn(),
 	ensureUserRoles: jest.fn(),
 	preloadRoleByName: jest.fn(),
 });
@@ -343,6 +346,68 @@ describe('UsersService', () => {
 				await expect(service.update(id, updateUserDto)).rejects.toThrow(
 					'User not found',
 				);
+			});
+		});
+	});
+
+	describe('updateUserRoles', () => {
+		const updateUserRolesDto: UpdateUserRolesDto = {
+			add: [RoleType.ADMIN],
+			remove: [RoleType.ADMIN],
+		};
+		const currentRoles: Role[] = [
+			{
+				id: '1',
+				name: RoleType.USER,
+				users: [],
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			},
+		];
+
+		describe('when both add and remove are provided', () => {
+			it('applies additions and removals and returns the final deduplicated role', async () => {
+				// 	Arrange
+				const id = '1';
+				const expectedUser = {
+					id,
+					roles: currentRoles,
+				};
+
+				usersRepository.findOne?.mockResolvedValue({ id, roles: currentRoles });
+				usersRepository.create?.mockResolvedValue(expectedUser);
+
+				// 	Act
+				const roles = await service.updateUserRoles(id, updateUserRolesDto);
+
+				// 	Assert
+				expect(usersRepository.findOne).toHaveBeenCalledWith(
+					{ id },
+					{ relations: { roles: true } },
+				);
+				expect(rolesService.applyRoleChanges).toHaveBeenCalledWith(
+					updateUserRolesDto,
+					currentRoles,
+				);
+				expect(roles).toEqual(expectedUser);
+			});
+		});
+
+		describe('when user does not exist', () => {
+			it('should throw NotFoundException', async () => {
+				// 	Arrange
+				const id = '1';
+				usersRepository.findOne?.mockRejectedValue(
+					new NotFoundException('User not found'),
+				);
+
+				// 	Assert
+				await expect(
+					service.updateUserRoles(id, updateUserRolesDto),
+				).rejects.toBeInstanceOf(NotFoundException);
+				await expect(
+					service.updateUserRoles(id, updateUserRolesDto),
+				).rejects.toThrow('User not found');
 			});
 		});
 	});

@@ -11,8 +11,10 @@ import {
 	CreateRoleDto,
 	DEFAULT_TAKE,
 	POSTGRES_UNIQUE_VIOLATION,
+	Role,
 	RoleType,
 	UpdateRoleDto,
+	UpdateUserRolesDto,
 } from '@app/common';
 
 type MockRepository = Partial<Record<keyof RolesRepository, jest.Mock>>;
@@ -253,6 +255,85 @@ describe('RolesService', () => {
 					NotFoundException,
 				);
 				await expect(service.remove(id)).rejects.toThrow('Role not found');
+			});
+		});
+	});
+
+	describe('applyRoleChanges', () => {
+		describe('when both add and remove are provided', () => {
+			it('applies additions and removals and returns the final deduplicated roles', async () => {
+				// 	Arrange
+				const updateUserRolesDto: UpdateUserRolesDto = {
+					add: [RoleType.ADMIN],
+					remove: [RoleType.ADMIN],
+				};
+				const currentRoles: Role[] = [
+					{
+						id: '1',
+						name: RoleType.USER,
+						users: [],
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					},
+				];
+				rolesRepository.findOne?.mockResolvedValue({
+					id: '2',
+					name: RoleType.ADMIN,
+				});
+
+				// 	Act
+				const roles = await service.applyRoleChanges(
+					updateUserRolesDto,
+					currentRoles,
+				);
+
+				// 	Assert
+				expect(rolesRepository.findOne).toHaveBeenCalledTimes(1);
+				expect(rolesRepository.findOne).toHaveBeenCalledWith({
+					name: RoleType.ADMIN,
+				});
+				expect(roles).toEqual(currentRoles);
+			});
+		});
+	});
+
+	describe('ensureUserRoles', () => {
+		describe('when a valid extra role type is provided', () => {
+			it('returns USER and the extra role', async () => {
+				// 	Arrange
+				const roleType = RoleType.ADMIN;
+				const expectedRoles = [
+					{ id: '1', name: RoleType.USER },
+					{ id: '2', name: roleType },
+				];
+				rolesRepository.findOne?.mockResolvedValueOnce(expectedRoles[0]);
+				rolesRepository.findOne?.mockResolvedValueOnce(expectedRoles[1]);
+
+				// 	Act
+				const roles = await service.ensureUserRoles(roleType);
+
+				// 	Assert
+				expect(rolesRepository.findOne).toHaveBeenCalledTimes(2);
+				expect(roles).toEqual(expectedRoles);
+			});
+		});
+
+		describe('when role type is omitted or invalid', () => {
+			it('returns only the USER role', async () => {
+				// 	Arrange
+				const roleType = undefined;
+				const expectedRoles = [{ id: '1', name: RoleType.USER }];
+				rolesRepository.findOne?.mockResolvedValue(expectedRoles[0]);
+
+				// 	Act
+				const roles = await service.ensureUserRoles(roleType);
+
+				// 	Assert
+				expect(rolesRepository.findOne).toHaveBeenCalledTimes(1);
+				expect(rolesRepository.findOne).toHaveBeenCalledWith({
+					name: RoleType.USER,
+				});
+				expect(roles).toEqual(expectedRoles);
 			});
 		});
 	});

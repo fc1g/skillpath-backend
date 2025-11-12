@@ -9,6 +9,7 @@ import {
 	ParseUUIDPipe,
 	Patch,
 	Post,
+	UseGuards,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import {
@@ -20,8 +21,9 @@ import {
 	Serialize,
 	UpdateRoleDto,
 } from '@app/common';
+import { AccessJwtGuard } from '../../guards/access-jwt.guard';
 
-// TODO: @UseGuards(AccessJwtAuthGuard)
+@UseGuards(AccessJwtGuard)
 @Roles(RoleType.ADMIN)
 @Controller('roles')
 export class RolesController {

@@ -1,13 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from '@app/common';
+import { CreateUserDto, RefreshTokenPayloadInterface, User } from '@app/common';
+import { randomUUID } from 'crypto';
 import { ConflictException } from '@nestjs/common';
 
 type MockAuthService = Partial<Record<keyof AuthService, jest.Mock>>;
 
 const createMockAuthService = (): MockAuthService => ({
 	signup: jest.fn(),
+	login: jest.fn(),
+	logout: jest.fn(),
+	rotateTokens: jest.fn(),
 });
 
 describe('AuthController', () => {
@@ -42,17 +46,20 @@ describe('AuthController', () => {
 		};
 
 		describe('when payload is valid', () => {
-			it('should delegate AuthService.signup and return created user', async () => {
+			it('should delegate AuthService.signup and return signed tokens', async () => {
 				// 	Arrange
-				const expectedUser = { id: '1', ...createUserDto };
-				authService.signup?.mockResolvedValue(expectedUser);
+				const expectedTokens = {
+					accessToken: randomUUID(),
+					refreshToken: randomUUID(),
+				};
+				authService.signup?.mockResolvedValue(expectedTokens);
 
 				// 	Act
-				const user = await authController.signup(createUserDto);
+				const tokens = await authController.signup(createUserDto);
 
 				// 	Assert
 				expect(authService.signup).toHaveBeenCalledWith(createUserDto);
-				expect(user).toEqual(expectedUser);
+				expect(tokens).toEqual(expectedTokens);
 			});
 		});
 
@@ -70,6 +77,81 @@ describe('AuthController', () => {
 				await expect(authController.signup(createUserDto)).rejects.toThrow(
 					'User with this email already exists',
 				);
+			});
+		});
+	});
+
+	describe('login', () => {
+		describe('when user exists', () => {
+			it('should delegate AuthService.login and return signed tokens', async () => {
+				// 	Arrange
+				const user: User = {
+					id: '1',
+					email: 'email',
+					password: 'password',
+					roles: [],
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				};
+				const expectedTokens = {
+					accessToken: randomUUID(),
+					refreshToken: randomUUID(),
+				};
+				authService.login?.mockResolvedValue(expectedTokens);
+
+				// 	Act
+				const tokens = await authController.login(user);
+
+				// 	Assert
+				expect(authService.login).toHaveBeenCalledWith(user);
+				expect(tokens).toEqual(expectedTokens);
+			});
+		});
+	});
+
+	describe('logout', () => {
+		describe('when payload is valid', () => {
+			it('should delegate AuthService.logout', async () => {
+				// 	Arrange
+				const refreshTokenPayload: RefreshTokenPayloadInterface = {
+					userId: '1',
+					type: 'refresh',
+					jti: randomUUID(),
+				};
+				authService.logout?.mockResolvedValue(true);
+
+				// 	Act
+				await authController.logout(refreshTokenPayload);
+
+				// 	Assert
+				expect(authService.logout).toHaveBeenCalledWith(refreshTokenPayload);
+			});
+		});
+	});
+
+	describe('refresh', () => {
+		describe('when payload is valid', () => {
+			it('should delegate AuthService.refresh and return rotated tokens', async () => {
+				// 	Arrange
+				const refreshTokenPayload: RefreshTokenPayloadInterface = {
+					userId: '1',
+					type: 'refresh',
+					jti: randomUUID(),
+				};
+				const expectedTokens = {
+					accessToken: randomUUID(),
+					refreshToken: randomUUID(),
+				};
+				authService.rotateTokens?.mockResolvedValue(expectedTokens);
+
+				// 	Act
+				const tokens = await authController.refresh(refreshTokenPayload);
+
+				// 	Assert
+				expect(authService.rotateTokens).toHaveBeenCalledWith(
+					refreshTokenPayload,
+				);
+				expect(tokens).toEqual(expectedTokens);
 			});
 		});
 	});

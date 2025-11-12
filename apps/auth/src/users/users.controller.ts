@@ -1,4 +1,5 @@
 import {
+	Body,
 	Controller,
 	Delete,
 	Get,
@@ -7,6 +8,7 @@ import {
 	Param,
 	ParseUUIDPipe,
 	Patch,
+	UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -15,12 +17,14 @@ import {
 	RoleType,
 	Serialize,
 	UpdateUserDto,
+	UpdateUserRolesDto,
 	User,
 	UserDto,
 	UsersDto,
 } from '@app/common';
+import { AccessJwtGuard } from '../guards/access-jwt.guard';
 
-// TODO: @UseGuards(AccessJwtAuthGuard)
+@UseGuards(AccessJwtGuard)
 @Controller('users')
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
@@ -52,6 +56,16 @@ export class UsersController {
 		updateUserDto: UpdateUserDto,
 	): Promise<User> {
 		return this.usersService.update(id, updateUserDto);
+	}
+
+	@Roles(RoleType.ADMIN)
+	@Patch(':id/roles')
+	@Serialize(UserDto)
+	async updateUserRoles(
+		@Param('id', new ParseUUIDPipe()) id: string,
+		@Body() updateUserRolesDto: UpdateUserRolesDto,
+	): Promise<User> {
+		return this.usersService.updateUserRoles(id, updateUserRolesDto);
 	}
 
 	@Delete(':id')

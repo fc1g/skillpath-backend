@@ -13,6 +13,7 @@ import {
 	Role,
 	RoleType,
 	UpdateRoleDto,
+	UpdateUserRolesDto,
 } from '@app/common';
 import { plainToClass } from 'class-transformer';
 
@@ -59,6 +60,23 @@ export class RolesService {
 
 	async remove(id: string): Promise<Role> {
 		return this.rolesRepository.remove({ id });
+	}
+
+	async applyRoleChanges(
+		updateUserRolesDto: UpdateUserRolesDto,
+		currentRoles: Role[],
+	): Promise<Role[]> {
+		const rolesToAdd = await Promise.all(
+			(updateUserRolesDto.add ?? []).map(name =>
+				this.preloadRoleByName({ name }),
+			),
+		);
+
+		const uniqueRoles = Array.from(new Set([...currentRoles, ...rolesToAdd]));
+
+		return uniqueRoles.filter(
+			role => !(updateUserRolesDto.remove ?? []).includes(role.name),
+		);
 	}
 
 	async ensureUserRoles(roleType?: RoleType): Promise<Role[]> {

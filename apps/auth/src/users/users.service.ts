@@ -14,6 +14,7 @@ import {
 	POSTGRES_UNIQUE_VIOLATION,
 	RoleType,
 	UpdateUserDto,
+	UpdateUserRolesDto,
 	User,
 } from '@app/common';
 import { UsersRepository } from './users.repository';
@@ -95,6 +96,20 @@ export class UsersService {
 
 	async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
 		return this.usersRepository.update({ id }, updateUserDto);
+	}
+
+	async updateUserRoles(
+		id: string,
+		updateUserRolesDto: UpdateUserRolesDto,
+	): Promise<User> {
+		const user = await this.findOne(id);
+
+		user.roles = await this.rolesService.applyRoleChanges(
+			updateUserRolesDto,
+			user.roles,
+		);
+
+		return this.usersRepository.create(user);
 	}
 
 	async remove(id: string): Promise<User> {
