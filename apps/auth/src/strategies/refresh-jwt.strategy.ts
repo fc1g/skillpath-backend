@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigType } from '@nestjs/config';
-import refreshJwtConfig from '../config/refresh-jwt.config';
+import refreshJwtConfig from '../jwt-tokens/config/refresh-jwt.config';
 import type { Request } from 'express';
 import { RefreshTokenPayloadInterface } from '@app/common';
 
@@ -13,7 +13,7 @@ export class RefreshJwtStrategy extends PassportStrategy(
 ) {
 	constructor(
 		@Inject(refreshJwtConfig.KEY)
-		private readonly refreshJwtConfigurable: ConfigType<
+		protected readonly refreshJwtConfigurable: ConfigType<
 			typeof refreshJwtConfig
 		>,
 	) {

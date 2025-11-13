@@ -36,7 +36,8 @@ export default tseslint.config(
 		files: ['**/*.spec.ts', '**/*.test.ts'],
 		rules: {
 			'@typescript-eslint/no-floating-promises': 'off',
-			'@typescript-eslint/no-misused-promises': 'off'
+			'@typescript-eslint/no-misused-promises': 'off',
+			'@typescript-eslint/unbound-method': 'off',
 		},
 	},
 );

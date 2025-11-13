@@ -90,6 +90,7 @@ describe('AuthController', () => {
 					email: 'email',
 					password: 'password',
 					roles: [],
+					oauthAccounts: [],
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				};

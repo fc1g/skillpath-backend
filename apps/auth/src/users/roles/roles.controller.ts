@@ -17,6 +17,7 @@ import {
 	Role,
 	RoleDto,
 	Roles,
+	RolesDto,
 	RoleType,
 	Serialize,
 	UpdateRoleDto,
@@ -37,7 +38,7 @@ export class RolesController {
 	}
 
 	@Get()
-	@Serialize(RoleDto)
+	@Serialize(RolesDto)
 	async findAll(): Promise<Role[]> {
 		return this.rolesService.find();
 	}

@@ -4,6 +4,7 @@ import {
 	Injectable,
 	InternalServerErrorException,
 	Logger,
+	NotFoundException,
 	UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
@@ -35,15 +36,16 @@ export class UsersService {
 		roleType?: RoleType,
 	): Promise<User> {
 		const roles = await this.rolesService.ensureUserRoles(roleType);
-		const hashedPassword = await bcrypt.hash(
-			createUserDto.password,
-			BCRYPT_ROUNDS,
-		);
+		let hashedPassword: string | null = null;
+		if (createUserDto.password) {
+			hashedPassword = await bcrypt.hash(createUserDto.password, BCRYPT_ROUNDS);
+		}
 
 		const user = plainToClass(User, {
 			email: createUserDto.email,
 			password: hashedPassword,
 			roles,
+			oauthAccounts: [],
 		});
 
 		try {
@@ -114,5 +116,21 @@ export class UsersService {
 
 	async remove(id: string): Promise<User> {
 		return this.usersRepository.remove({ id });
+	}
+
+	async preloadUserByEmail(createUserDto: CreateUserDto): Promise<User> {
+		try {
+			const existingUser = await this.usersRepository.findOne({
+				email: createUserDto.email,
+			});
+			if (existingUser) {
+				return existingUser;
+			}
+		} catch (err) {
+			if (err instanceof NotFoundException) {
+				this.logger.warn(err.message);
+			}
+		}
+		return this.create(createUserDto);
 	}
 }

@@ -7,21 +7,16 @@ import {
 	databaseSchema,
 	HealthModule,
 	LoggerModule,
-	RedisModule,
+	oauthSchema,
 	redisSchema,
 } from '@app/common';
 import * as Joi from 'joi';
-import accessJwtConfig, { ACCESS_JWT } from './config/access-jwt.config';
-import { ConfigType } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import refreshJwtConfig, { REFRESH_JWT } from './config/refresh-jwt.config';
-import { RefreshTokenIdsStorage } from './storages/refresh-token-ids.storage';
-import { RefreshJwtStrategy } from './strategies/refresh-jwt.strategy';
-import { AccessJwtStrategy } from './strategies/access-jwt.strategy';
-import { UsersModule } from './users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { LocalStrategy } from './strategies/local.strategy';
+import { JwtTokensModule } from './jwt-tokens/jwt-tokens.module';
+import { UsersModule } from './users/users.module';
+import { StrategiesModule } from './strategies/strategies.module';
+import { OAuthModule } from './oauth/oauth.module';
 
 @Module({
 	imports: [
@@ -40,32 +35,16 @@ import { LocalStrategy } from './strategies/local.strategy';
 				databaseSchema,
 				redisSchema,
 				authSchema,
+				oauthSchema,
 			],
 		}),
-		ConfigModule.forFeature([accessJwtConfig, refreshJwtConfig]),
 		DatabaseModule,
-		RedisModule,
 		UsersModule,
+		JwtTokensModule,
+		StrategiesModule,
+		OAuthModule,
 	],
 	controllers: [AuthController],
-	providers: [
-		{
-			provide: ACCESS_JWT,
-			inject: [accessJwtConfig.KEY],
-			useFactory: (config: ConfigType<typeof accessJwtConfig>) =>
-				new JwtService(config),
-		},
-		{
-			provide: REFRESH_JWT,
-			inject: [refreshJwtConfig.KEY],
-			useFactory: (config: ConfigType<typeof refreshJwtConfig>) =>
-				new JwtService(config),
-		},
-		LocalStrategy,
-		AccessJwtStrategy,
-		RefreshJwtStrategy,
-		AuthService,
-		RefreshTokenIdsStorage,
-	],
+	providers: [AuthService],
 })
 export class AuthModule {}

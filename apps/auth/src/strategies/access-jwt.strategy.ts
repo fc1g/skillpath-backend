@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UsersService } from '../users/users.service';
 import { ConfigType } from '@nestjs/config';
-import accessJwtConfig from '../config/access-jwt.config';
+import accessJwtConfig from '../jwt-tokens/config/access-jwt.config';
 import { User } from '@app/common';
 import { AccessTokenPayloadInterface } from '../interfaces/access-token-payload.interface';
 import type { Request } from 'express';
@@ -16,7 +16,9 @@ export class AccessJwtStrategy extends PassportStrategy(
 	constructor(
 		private readonly usersService: UsersService,
 		@Inject(accessJwtConfig.KEY)
-		private readonly accessJwtConfigurable: ConfigType<typeof accessJwtConfig>,
+		protected readonly accessJwtConfigurable: ConfigType<
+			typeof accessJwtConfig
+		>,
 	) {
 		super({
 			jwtFromRequest: ExtractJwt.fromExtractors([

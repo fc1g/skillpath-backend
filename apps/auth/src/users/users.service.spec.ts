@@ -178,7 +178,7 @@ describe('UsersService', () => {
 				// 	Act
 				const user = await service.verifyUser(
 					createUserDto.email,
-					createUserDto.password,
+					createUserDto.password!,
 				);
 
 				// 	Assert
@@ -202,10 +202,10 @@ describe('UsersService', () => {
 
 				// Assert
 				await expect(
-					service.verifyUser(createUserDto.email, createUserDto.password),
+					service.verifyUser(createUserDto.email, createUserDto.password!),
 				).rejects.toBeInstanceOf(BadRequestException);
 				await expect(
-					service.verifyUser(createUserDto.email, createUserDto.password),
+					service.verifyUser(createUserDto.email, createUserDto.password!),
 				).rejects.toThrow('Please sign in with your provider');
 			});
 		});
@@ -226,10 +226,10 @@ describe('UsersService', () => {
 
 				// Assert
 				await expect(
-					service.verifyUser(createUserDto.email, createUserDto.password),
+					service.verifyUser(createUserDto.email, createUserDto.password!),
 				).rejects.toBeInstanceOf(UnauthorizedException);
 				await expect(
-					service.verifyUser(createUserDto.email, createUserDto.password),
+					service.verifyUser(createUserDto.email, createUserDto.password!),
 				).rejects.toThrow('Credentials are not valid');
 			});
 		});
