@@ -42,6 +42,7 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 .env.local
+http-client.private.env.json
 /certs
 
 # temp directory

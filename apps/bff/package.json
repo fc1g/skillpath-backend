@@ -4,6 +4,9 @@
   "private": true,
   "main": "dist/bff/main.js",
   "license": "ISC",
+	"scripts": {
+		"test:e2e": "jest --config ./test/jest-e2e.json"
+	},
   "packageManager": "pnpm@10.20.0",
   "dependencies": {},
   "devDependencies": {}

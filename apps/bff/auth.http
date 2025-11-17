@@ -1,0 +1,28 @@
+### signup
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+	"email": "{{auth_email}}",
+	"password": "{{auth_password}}"
+}
+
+### login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+	"email": "{{auth_email}}",
+	"password": "{{auth_password}}"
+}
+
+> {%
+	const {accessToken} = response.body;
+	client.global.set('accessToken', accessToken)
+%}
+
+### logout
+POST {{baseUrl}}/auth/logout
+
+### refresh
+POST {{baseUrl}}/auth/refresh

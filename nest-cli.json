@@ -1,41 +1,42 @@
 {
-  "$schema": "https://json.schemastore.org/nest-cli",
-  "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/bff/src",
-  "compilerOptions": {
-    "deleteOutDir": true,
-    "webpack": true,
-    "tsConfigPath": "apps/bff/tsconfig.app.json"
-  },
-  "projects": {
-    "auth": {
-      "type": "application",
-      "root": "apps/auth",
-      "entryFile": "main",
-      "sourceRoot": "apps/auth/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/auth/tsconfig.app.json"
-      }
-    },
-    "bff": {
-      "type": "application",
-      "root": "apps/bff",
-      "entryFile": "main",
-      "sourceRoot": "apps/bff/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/bff/tsconfig.app.json"
-      }
-    },
-    "common": {
-      "type": "library",
-      "root": "libs/common",
-      "entryFile": "index",
-      "sourceRoot": "libs/common/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/common/tsconfig.lib.json"
-      }
-    }
-  },
-  "monorepo": true,
-  "root": "apps/bff"
+	"$schema": "https://json.schemastore.org/nest-cli",
+	"collection": "@nestjs/schematics",
+	"sourceRoot": "apps/bff/src",
+	"compilerOptions": {
+		"deleteOutDir": true,
+		"webpack": true,
+		"tsConfigPath": "apps/bff/tsconfig.app.json",
+		"plugins": ["@nestjs/swagger/plugin"]
+	},
+	"projects": {
+		"auth": {
+			"type": "application",
+			"root": "apps/auth",
+			"entryFile": "main",
+			"sourceRoot": "apps/auth/src",
+			"compilerOptions": {
+				"tsConfigPath": "apps/auth/tsconfig.app.json"
+			}
+		},
+		"bff": {
+			"type": "application",
+			"root": "apps/bff",
+			"entryFile": "main",
+			"sourceRoot": "apps/bff/src",
+			"compilerOptions": {
+				"tsConfigPath": "apps/bff/tsconfig.app.json"
+			}
+		},
+		"common": {
+			"type": "library",
+			"root": "libs/common",
+			"entryFile": "index",
+			"sourceRoot": "libs/common/src",
+			"compilerOptions": {
+				"tsConfigPath": "libs/common/tsconfig.lib.json"
+			}
+		}
+	},
+	"monorepo": true,
+	"root": "apps/bff"
 }

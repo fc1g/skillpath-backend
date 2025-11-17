@@ -62,6 +62,10 @@ export class UsersService {
 		}
 	}
 
+	async save(user: User): Promise<User> {
+		return this.usersRepository.create(user);
+	}
+
 	async verifyUser(email: string, password: string): Promise<User> {
 		const user = await this.usersRepository.findOne({ email });
 

@@ -35,6 +35,24 @@ EXPOSE ${HTTP_PORT}
 
 CMD pnpm start:dev -- $SERVICE_NAME
 
+FROM deps AS e2e
+
+ARG SERVICE_NAME
+ENV SERVICE_NAME=${SERVICE_NAME}
+
+ARG HTTP_PORT
+ENV HTTP_PORT=${HTTP_PORT}
+
+ENV NODE_ENV=test
+
+COPY apps/${SERVICE_NAME} apps/${SERVICE_NAME}/
+COPY certs certs
+COPY libs libs
+
+RUN pnpm build -- $SERVICE_NAME
+
+CMD pnpm -C apps/$SERVICE_NAME test:e2e
+
 FROM deps AS builder
 
 ARG SERVICE_NAME

@@ -12,7 +12,6 @@ import {
 	OAuthUser,
 	POSTGRES_UNIQUE_VIOLATION,
 	UpdateOAuthAccountDto,
-	User,
 } from '@app/common';
 import { plainToClass } from 'class-transformer';
 
@@ -71,7 +70,7 @@ export class OAuthAccountsService {
 	}
 
 	async preloadOAuthAccountByProvider(
-		user: User,
+		userId: string,
 		oauthUser: OAuthUser,
 	): Promise<OAuthAccount> {
 		try {
@@ -94,7 +93,9 @@ export class OAuthAccountsService {
 				providerId: oauthUser.providerId,
 				username: oauthUser.username,
 				email: oauthUser.email,
-				user,
+				user: {
+					id: userId,
+				},
 			}),
 		);
 	}

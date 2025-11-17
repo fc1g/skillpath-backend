@@ -73,7 +73,10 @@ describe('OAuthAccountsService', () => {
 				oauthAccountsRepository.create?.mockResolvedValue(expectedAccount);
 
 				// 	Act
-				const oauthAccount = await service.create({ user, ...oauthUser });
+				const oauthAccount = await service.create({
+					userId: user.id,
+					...oauthUser,
+				});
 
 				// 	Assert
 				expect(oauthAccount).toEqual(expectedAccount);
@@ -89,9 +92,11 @@ describe('OAuthAccountsService', () => {
 
 				// 	Assert
 				await expect(
-					service.create({ user, ...oauthUser }),
+					service.create({ userId: user.id, ...oauthUser }),
 				).rejects.toBeInstanceOf(ConflictException);
-				await expect(service.create({ user, ...oauthUser })).rejects.toThrow(
+				await expect(
+					service.create({ userId: user.id, ...oauthUser }),
+				).rejects.toThrow(
 					'OAuth account with this provider and provider id already exists',
 				);
 			});
@@ -107,9 +112,11 @@ describe('OAuthAccountsService', () => {
 				);
 				// 	Assert
 				await expect(
-					service.create({ user, ...oauthUser }),
+					service.create({ userId: user.id, ...oauthUser }),
 				).rejects.toBeInstanceOf(InternalServerErrorException);
-				await expect(service.create({ user, ...oauthUser })).rejects.toThrow(
+				await expect(
+					service.create({ userId: user.id, ...oauthUser }),
+				).rejects.toThrow(
 					'Unable to create OAuthAccount, please try again later',
 				);
 			});
@@ -258,7 +265,7 @@ describe('OAuthAccountsService', () => {
 
 				// 	Act
 				const oauthAccount = await service.preloadOAuthAccountByProvider(
-					user,
+					user.id,
 					oauthUser,
 				);
 
@@ -279,7 +286,7 @@ describe('OAuthAccountsService', () => {
 
 				// 	Act
 				const oauthAccount = await service.create({
-					user,
+					userId: user.id,
 					...oauthUser,
 				});
 

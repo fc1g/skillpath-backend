@@ -17,15 +17,16 @@ export class OAuthService {
 			email: oauthUser.email,
 			password: null,
 		});
+
 		const oauthAccount =
 			await this.oauthAccountsService.preloadOAuthAccountByProvider(
-				user,
+				user.id,
 				oauthUser,
 			);
 
 		if (!user.oauthAccounts.includes(oauthAccount)) {
 			user.oauthAccounts.push(oauthAccount);
-			await this.usersService.create(user);
+			await this.usersService.save(user);
 		}
 
 		return this.tokensService.issuePairForUser(user);

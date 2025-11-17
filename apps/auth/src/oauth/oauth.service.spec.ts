@@ -13,6 +13,7 @@ type MockJwtTokensService = Partial<Record<keyof JwtTokensService, jest.Mock>>;
 
 const createMockUsersService = (): MockUsersService => ({
 	create: jest.fn(),
+	save: jest.fn(),
 	preloadUserByEmail: jest.fn(),
 });
 const createMockOAuthAccountsService = (): MockOAuthAccountsService => ({
@@ -67,6 +68,7 @@ describe('OAuthService', () => {
 			it('should return signed tokens', async () => {
 				// Arrange
 				const expectedUser = {
+					id: '1',
 					oauthAccounts: [],
 				};
 				const expectedOAuthAccount = {
@@ -91,7 +93,7 @@ describe('OAuthService', () => {
 				});
 				expect(
 					oauthAccountsService.preloadOAuthAccountByProvider,
-				).toHaveBeenCalledWith(expectedUser, oauthUser);
+				).toHaveBeenCalledWith(expectedUser.id, oauthUser);
 				expect(tokens).toEqual({ accessToken, refreshToken });
 			});
 		});
