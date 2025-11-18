@@ -28,7 +28,8 @@ export class AuthService {
 
 		await this.httpService.post('auth/logout', undefined, { headers });
 
-		this.cookieService.clearRefreshCookie(res);
+		this.cookieService.clearCookie(res, 'refreshToken');
+		this.cookieService.clearCookie(res, 'accessToken');
 	}
 
 	async rotateTokens(req: Request, res: Response) {
@@ -43,14 +44,21 @@ export class AuthService {
 		url: string,
 		data?: T,
 		headers?: RawAxiosRequestHeaders,
-	): Promise<{ accessToken: string }> {
+	) {
 		const { accessToken, refreshToken } =
 			await this.httpService.post<IssuedTokensDto>(url, data, { headers });
 
-		this.cookieService.setRefreshCookie(res, refreshToken);
-
-		return {
+		this.cookieService.setCookie(
+			res,
+			'refreshToken',
+			refreshToken,
+			'REFRESH_EXPIRES',
+		);
+		this.cookieService.setCookie(
+			res,
+			'accessToken',
 			accessToken,
-		};
+			'ACCESS_EXPIRES',
+		);
 	}
 }

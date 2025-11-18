@@ -7,6 +7,7 @@ import {
 } from '@app/common';
 import { AuthModule } from './auth/auth.module';
 import { OauthModule } from './auth/oauth/oauth.module';
+import { UsersModule } from './auth/users/users.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -23,7 +24,8 @@ import * as Joi from 'joi';
 
 					BASE_AUTH_HTTP_URL: Joi.string().uri().required(),
 
-					REFRESH_COOKIE_MAX_AGE: Joi.number().positive().default(604800),
+					REFRESH_EXPIRES: Joi.number().positive().default(604800),
+					ACCESS_EXPIRES: Joi.number().positive().default(900),
 
 					OAUTH_GITHUB_REDIRECT_URL: Joi.string().uri().required(),
 					OAUTH_GOOGLE_REDIRECT_URL: Joi.string().uri().required(),
@@ -41,6 +43,7 @@ import * as Joi from 'joi';
 		}),
 		AuthModule,
 		OauthModule,
+		UsersModule,
 	],
 })
 export class BffModule {}

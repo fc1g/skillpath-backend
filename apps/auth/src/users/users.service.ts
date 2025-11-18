@@ -95,6 +95,7 @@ export class UsersService {
 			{
 				relations: {
 					roles: true,
+					oauthAccounts: true,
 				},
 			},
 		);

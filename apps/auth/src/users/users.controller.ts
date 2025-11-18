@@ -13,6 +13,7 @@ import {
 import { UsersService } from './users.service';
 import {
 	CurrentUser,
+	MeDto,
 	Roles,
 	RoleType,
 	Serialize,
@@ -23,6 +24,7 @@ import {
 	UsersDto,
 } from '@app/common';
 import { AccessJwtGuard } from '../guards/access-jwt.guard';
+import { UserMapper } from './mappers/user.mapper';
 
 @UseGuards(AccessJwtGuard)
 @Controller('users')
@@ -37,9 +39,9 @@ export class UsersController {
 	}
 
 	@Get('me')
-	@Serialize(UserDto)
-	getUser(@CurrentUser() currentUser: User): User {
-		return currentUser;
+	@Serialize(MeDto)
+	getUser(@CurrentUser() currentUser: User): MeDto {
+		return UserMapper.toMeDto(currentUser);
 	}
 
 	@Roles(RoleType.ADMIN)

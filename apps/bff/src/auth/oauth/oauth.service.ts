@@ -31,7 +31,7 @@ export class OauthService {
 		const headers = this.requestService.extractHeaders(req);
 		this.requestService.validateAuth(headers);
 
-		const { refreshToken } = await this.http.get<IssuedTokensDto>(
+		const { accessToken, refreshToken } = await this.http.get<IssuedTokensDto>(
 			`oauth/${providerType.toUpperCase()}/callback`,
 			{
 				params: req.query,
@@ -41,7 +41,18 @@ export class OauthService {
 			},
 		);
 
-		this.cookieService.setRefreshCookie(res, refreshToken);
+		this.cookieService.setCookie(
+			res,
+			'refreshToken',
+			refreshToken,
+			'REFRESH_EXPIRES',
+		);
+		this.cookieService.setCookie(
+			res,
+			'accessToken',
+			accessToken,
+			'ACCESS_EXPIRES',
+		);
 
 		res.redirect(this.configService.getOrThrow<string>('CORS_ORIGIN'));
 	}

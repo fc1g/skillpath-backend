@@ -24,11 +24,16 @@ export class OAuthService {
 				oauthUser,
 			);
 
-		if (!user.oauthAccounts.includes(oauthAccount)) {
+		if (
+			Array.isArray(user.oauthAccounts) &&
+			!user.oauthAccounts.includes(oauthAccount)
+		) {
 			user.oauthAccounts.push(oauthAccount);
-			await this.usersService.save(user);
+		} else {
+			user.oauthAccounts = [oauthAccount];
 		}
 
+		await this.usersService.save(user);
 		return this.tokensService.issuePairForUser(user);
 	}
 }

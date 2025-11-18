@@ -1,3 +1,4 @@
 export * from './roles';
 export * from './users';
 export * from './oauth-account';
+export * from './me';

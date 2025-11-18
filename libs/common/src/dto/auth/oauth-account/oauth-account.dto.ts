@@ -1,7 +1,11 @@
-import { Expose, Type } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { ProviderType } from '@app/common/enums';
 import { UserDto } from '@app/common/dto';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+	ApiHideProperty,
+	ApiProperty,
+	ApiPropertyOptional,
+} from '@nestjs/swagger';
 
 export class OAuthAccountDto {
 	@Expose()
@@ -20,11 +24,8 @@ export class OAuthAccountDto {
 	})
 	provider: ProviderType;
 
-	@Expose()
-	@ApiProperty({
-		description: 'Provider user ID (GitHub ID or Google sub)',
-		example: '12345678',
-	})
+	@Exclude()
+	@ApiHideProperty()
 	providerId: string;
 
 	@Expose()

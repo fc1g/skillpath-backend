@@ -17,14 +17,14 @@ export class CookieService {
 			configService.getOrThrow<string>('NODE_ENV') === 'production';
 	}
 
-	clearRefreshCookie(res: Response) {
-		res.clearCookie('refreshToken', this.baseCookieOptions);
+	clearCookie(res: Response, key: string) {
+		res.clearCookie(key, this.baseCookieOptions);
 	}
 
-	setRefreshCookie(res: Response, token: string) {
-		res.cookie('refreshToken', token, {
+	setCookie(res: Response, key: string, value: string, maxAgeEnv: string) {
+		res.cookie(key, value, {
 			...this.baseCookieOptions,
-			maxAge: this.configService.getOrThrow<number>('REFRESH_COOKIE_MAX_AGE'),
+			maxAge: this.configService.getOrThrow<number>(maxAgeEnv) * 1000,
 		});
 	}
 }
