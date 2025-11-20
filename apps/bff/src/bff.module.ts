@@ -8,6 +8,7 @@ import {
 import { AuthModule } from './auth/auth.module';
 import { OauthModule } from './auth/oauth/oauth.module';
 import { UsersModule } from './auth/users/users.module';
+import { CoursesModule } from './courses/courses.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -44,6 +45,7 @@ import * as Joi from 'joi';
 		AuthModule,
 		OauthModule,
 		UsersModule,
+		CoursesModule,
 	],
 })
 export class BffModule {}

@@ -1,14 +1,7 @@
-import {
-	Column,
-	CreateDateColumn,
-	Entity,
-	Index,
-	ManyToMany,
-	UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, Index, ManyToMany } from 'typeorm';
 import { AbstractEntity } from '@app/common/database';
 import { RoleType } from '@app/common/enums';
-import { User } from '@app/common/entities/user.entity';
+import { User } from '@app/common/entities/auth/user.entity';
 
 @Entity('roles')
 @Index(['name'], { unique: true })
@@ -18,10 +11,4 @@ export class Role extends AbstractEntity<Role> {
 
 	@ManyToMany(() => User, user => user.roles)
 	users: User[];
-
-	@CreateDateColumn({ name: 'created_at' })
-	createdAt: Date;
-
-	@UpdateDateColumn({ name: 'updated_at' })
-	updatedAt: Date;
 }

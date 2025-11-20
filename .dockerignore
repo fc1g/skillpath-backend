@@ -4,6 +4,7 @@ node_modules
 
 # builds
 dist
+schema.graphql
 
 # system files
 .DS_Store
@@ -18,6 +19,7 @@ Thumbs.db
 .gitignore
 .idea
 .fleet
+graphql.config.yml
 
 # docker / compose
 Dockerfile

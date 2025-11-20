@@ -1,16 +1,7 @@
-import {
-	Column,
-	CreateDateColumn,
-	Entity,
-	Index,
-	JoinColumn,
-	ManyToOne,
-	Unique,
-	UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { AbstractEntity } from '@app/common/database';
 import { ProviderType } from '@app/common/enums';
-import { User } from '@app/common/entities/user.entity';
+import { User } from '@app/common/entities/auth/user.entity';
 
 @Entity('oauth_accounts')
 @Index(['provider', 'providerId'], { unique: true })
@@ -36,10 +27,4 @@ export class OAuthAccount extends AbstractEntity<OAuthAccount> {
 	@JoinColumn({ name: 'user_id' })
 	@Index()
 	user: User;
-
-	@CreateDateColumn({ name: 'created_at' })
-	createdAt: Date;
-
-	@UpdateDateColumn({ name: 'updated_at' })
-	updatedAt: Date;
 }

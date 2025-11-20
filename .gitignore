@@ -2,6 +2,7 @@
 /dist
 node_modules
 /build
+schema.graphql
 
 # Logs
 logs
@@ -28,6 +29,7 @@ lerna-debug.log*
 *.launch
 .settings/
 *.sublime-workspace
+graphql.config.yml
 
 # IDE - VSCode
 .vscode/*

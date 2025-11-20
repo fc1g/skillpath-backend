@@ -6,7 +6,7 @@
 		"deleteOutDir": true,
 		"webpack": true,
 		"tsConfigPath": "apps/bff/tsconfig.app.json",
-		"plugins": ["@nestjs/swagger/plugin"]
+		"plugins": ["@nestjs/swagger/plugin", "@nestjs/graphql"]
 	},
 	"projects": {
 		"auth": {
@@ -34,6 +34,15 @@
 			"sourceRoot": "libs/common/src",
 			"compilerOptions": {
 				"tsConfigPath": "libs/common/tsconfig.lib.json"
+			}
+		},
+		"courses": {
+			"type": "application",
+			"root": "apps/courses",
+			"entryFile": "main",
+			"sourceRoot": "apps/courses/src",
+			"compilerOptions": {
+				"tsConfigPath": "apps/courses/tsconfig.app.json"
 			}
 		}
 	},
