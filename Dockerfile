@@ -80,6 +80,8 @@ COPY --from=builder /usr/src/app/certs ./certs
 COPY --from=builder /usr/src/app/package.json ./package.json
 COPY --from=builder /usr/src/app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=builder /usr/src/app/nest-cli.json ./nest-cli.json
+COPY --from=builder /usr/src/app/tsconfig.json ./tsconfig.json
+COPY --from=builder /usr/src/app/libs ./libs
 
 COPY --from=deps /usr/src/app/node_modules ./node_modules
 

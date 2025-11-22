@@ -37,7 +37,7 @@ import * as Joi from 'joi';
 					OPENAPI_DOCUMENT_COOKIE_NAME: Joi.string().required(),
 					OPENAPI_DOCUMENT_BEARER_NAME: Joi.string().required(),
 
-					CORS_ORIGIN: Joi.string().uri().required(),
+					CORS_ORIGINS: Joi.string().uri().required(),
 				}),
 				baseSchema,
 			],

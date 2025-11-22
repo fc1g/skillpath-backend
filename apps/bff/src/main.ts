@@ -23,7 +23,7 @@ void (async function bootstrap() {
 	app.enableShutdownHooks();
 
 	app.enableCors({
-		origin: [configService.getOrThrow<string>('CORS_ORIGIN')],
+		origin: [configService.getOrThrow<string>('CORS_ORIGINS')],
 		credentials: true,
 	});
 

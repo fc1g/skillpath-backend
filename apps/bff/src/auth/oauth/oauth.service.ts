@@ -54,6 +54,8 @@ export class OauthService {
 			'ACCESS_EXPIRES',
 		);
 
-		res.redirect(this.configService.getOrThrow<string>('CORS_ORIGIN'));
+		res.redirect(
+			this.configService.getOrThrow<string>('CORS_ORIGINS').split(',')[0],
+		);
 	}
 }
