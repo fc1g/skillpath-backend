@@ -4,11 +4,11 @@ import { IsNotEmpty, MaxLength } from 'class-validator';
 import { Expose, Transform } from 'class-transformer';
 
 @InputType()
-export class CreateTagInput {
+export class CreateCategoryInput {
 	@Field()
-	@ApiProperty({ maxLength: 64 })
+	@ApiProperty({ maxLength: 128 })
 	@IsNotEmpty()
-	@MaxLength(64)
+	@MaxLength(128)
 	@Transform(({ value }: { value: string }) => value.trim().toLowerCase())
 	@Expose()
 	name: string;

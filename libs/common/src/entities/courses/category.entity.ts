@@ -1,3 +1,4 @@
+import { AbstractEntity } from '@app/common/database';
 import { Field, ObjectType } from '@nestjs/graphql';
 import {
 	BeforeInsert,
@@ -7,24 +8,23 @@ import {
 	Index,
 	ManyToMany,
 } from 'typeorm';
-import { AbstractEntity } from '@app/common/database';
-import { Course } from '@app/common/entities/courses/course.entity';
 import slugify from 'slugify';
+import { Course } from '@app/common/entities';
 
 @ObjectType()
-@Entity('tags')
+@Entity('categories')
 @Index(['slug'], { unique: true })
-export class Tag extends AbstractEntity<Tag> {
+export class Category extends AbstractEntity<Category> {
 	@Field()
-	@Column('varchar', { length: 64, unique: true })
+	@Column('varchar', { length: 255, unique: true })
 	name: string;
 
 	@Field()
-	@Column('varchar', { length: 64 })
+	@Column('varchar', { length: 255 })
 	slug: string;
 
 	@Field(() => [Course])
-	@ManyToMany(() => Course, course => course.tags)
+	@ManyToMany(() => Course, course => course.categories)
 	courses: Course[];
 
 	@BeforeInsert()

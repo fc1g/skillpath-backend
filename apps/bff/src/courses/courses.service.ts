@@ -7,7 +7,7 @@ export class CoursesService {
 	constructor(private readonly http: HttpService) {}
 
 	async proxy(req: Request, body: unknown) {
-		const res = await this.http.post<{ data: unknown }>('/graphql', body, {
+		return this.http.post('/graphql', body, {
 			headers: {
 				'Content-Type': 'application/json',
 				authorization: req.headers['authorization'] ?? '',
@@ -15,7 +15,5 @@ export class CoursesService {
 			},
 			withCredentials: true,
 		});
-
-		return res.data;
 	}
 }

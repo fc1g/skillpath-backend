@@ -32,12 +32,6 @@ export class InitialSchema1763748947735 implements MigrationInterface {
 			`CREATE UNIQUE INDEX "IDX_283c974372e384adfc2c51ae18" ON "oauth_accounts" ("provider", "provider_id") `,
 		);
 		await queryRunner.query(
-			`CREATE TABLE "tags" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "name" character varying(64) NOT NULL, "slug" character varying(64) NOT NULL, CONSTRAINT "UQ_d90243459a697eadb8ad56e9092" UNIQUE ("name"), CONSTRAINT "PK_e7dc17249a1148a1970748eda99" PRIMARY KEY ("id"))`,
-		);
-		await queryRunner.query(
-			`CREATE UNIQUE INDEX "IDX_b3aa10c29ea4e61a830362bd25" ON "tags" ("slug") `,
-		);
-		await queryRunner.query(
 			`CREATE TYPE "public"."quiz_type" AS ENUM('single-choice', 'multiple-choice')`,
 		);
 		await queryRunner.query(
@@ -74,6 +68,12 @@ export class InitialSchema1763748947735 implements MigrationInterface {
 			`CREATE UNIQUE INDEX "idx_section_course_order" ON "sections" ("course_id", "order") `,
 		);
 		await queryRunner.query(
+			`CREATE TABLE "categories" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "name" character varying(255) NOT NULL, "slug" character varying(255) NOT NULL, CONSTRAINT "UQ_8b0be371d28245da6e4f4b61878" UNIQUE ("name"), CONSTRAINT "PK_24dbc6126a28ff948da33e97d3b" PRIMARY KEY ("id"))`,
+		);
+		await queryRunner.query(
+			`CREATE UNIQUE INDEX "IDX_420d9f679d41281f282f5bc7d0" ON "categories" ("slug") `,
+		);
+		await queryRunner.query(
 			`CREATE TYPE "public"."course_level" AS ENUM('beginner', 'intermediate', 'advanced')`,
 		);
 		await queryRunner.query(
@@ -81,6 +81,12 @@ export class InitialSchema1763748947735 implements MigrationInterface {
 		);
 		await queryRunner.query(
 			`CREATE UNIQUE INDEX "IDX_a3bb2d01cfa0f95bc5e034e1b7" ON "courses" ("slug") `,
+		);
+		await queryRunner.query(
+			`CREATE TABLE "tags" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "name" character varying(64) NOT NULL, "slug" character varying(64) NOT NULL, CONSTRAINT "UQ_d90243459a697eadb8ad56e9092" UNIQUE ("name"), CONSTRAINT "PK_e7dc17249a1148a1970748eda99" PRIMARY KEY ("id"))`,
+		);
+		await queryRunner.query(
+			`CREATE UNIQUE INDEX "IDX_b3aa10c29ea4e61a830362bd25" ON "tags" ("slug") `,
 		);
 		await queryRunner.query(
 			`CREATE TABLE "user_roles" ("user_id" uuid NOT NULL, "role_id" uuid NOT NULL, CONSTRAINT "PK_23ed6f04fe43066df08379fd034" PRIMARY KEY ("user_id", "role_id"))`,
@@ -99,6 +105,15 @@ export class InitialSchema1763748947735 implements MigrationInterface {
 		);
 		await queryRunner.query(
 			`CREATE INDEX "IDX_87da401f10ecb400b2f4bfcda7" ON "course_tags" ("tag_id") `,
+		);
+		await queryRunner.query(
+			`CREATE TABLE "course_categories" ("course_id" uuid NOT NULL, "category_id" uuid NOT NULL, CONSTRAINT "PK_0fcee24a5291cf6c3de60ea670e" PRIMARY KEY ("course_id", "category_id"))`,
+		);
+		await queryRunner.query(
+			`CREATE INDEX "IDX_c961c57e9f869094eebab0d547" ON "course_categories" ("course_id") `,
+		);
+		await queryRunner.query(
+			`CREATE INDEX "IDX_53c2e5fe2bb1ba3c21deac6a98" ON "course_categories" ("category_id") `,
 		);
 		await queryRunner.query(
 			`ALTER TABLE "oauth_accounts" ADD CONSTRAINT "FK_22a05e92f51a983475f9281d3b0" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`,
@@ -127,9 +142,21 @@ export class InitialSchema1763748947735 implements MigrationInterface {
 		await queryRunner.query(
 			`ALTER TABLE "course_tags" ADD CONSTRAINT "FK_87da401f10ecb400b2f4bfcda7c" FOREIGN KEY ("tag_id") REFERENCES "tags"("id") ON DELETE CASCADE ON UPDATE CASCADE`,
 		);
+		await queryRunner.query(
+			`ALTER TABLE "course_categories" ADD CONSTRAINT "FK_c961c57e9f869094eebab0d547d" FOREIGN KEY ("course_id") REFERENCES "courses"("id") ON DELETE CASCADE ON UPDATE CASCADE`,
+		);
+		await queryRunner.query(
+			`ALTER TABLE "course_categories" ADD CONSTRAINT "FK_53c2e5fe2bb1ba3c21deac6a986" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE CASCADE ON UPDATE CASCADE`,
+		);
 	}
 
 	public async down(queryRunner: QueryRunner): Promise<void> {
+		await queryRunner.query(
+			`ALTER TABLE "course_categories" DROP CONSTRAINT "FK_53c2e5fe2bb1ba3c21deac6a986"`,
+		);
+		await queryRunner.query(
+			`ALTER TABLE "course_categories" DROP CONSTRAINT "FK_c961c57e9f869094eebab0d547d"`,
+		);
 		await queryRunner.query(
 			`ALTER TABLE "course_tags" DROP CONSTRAINT "FK_87da401f10ecb400b2f4bfcda7c"`,
 		);
@@ -158,6 +185,13 @@ export class InitialSchema1763748947735 implements MigrationInterface {
 			`ALTER TABLE "oauth_accounts" DROP CONSTRAINT "FK_22a05e92f51a983475f9281d3b0"`,
 		);
 		await queryRunner.query(
+			`DROP INDEX "public"."IDX_53c2e5fe2bb1ba3c21deac6a98"`,
+		);
+		await queryRunner.query(
+			`DROP INDEX "public"."IDX_c961c57e9f869094eebab0d547"`,
+		);
+		await queryRunner.query(`DROP TABLE "course_categories"`);
+		await queryRunner.query(
 			`DROP INDEX "public"."IDX_87da401f10ecb400b2f4bfcda7"`,
 		);
 		await queryRunner.query(
@@ -172,10 +206,18 @@ export class InitialSchema1763748947735 implements MigrationInterface {
 		);
 		await queryRunner.query(`DROP TABLE "user_roles"`);
 		await queryRunner.query(
+			`DROP INDEX "public"."IDX_b3aa10c29ea4e61a830362bd25"`,
+		);
+		await queryRunner.query(`DROP TABLE "tags"`);
+		await queryRunner.query(
 			`DROP INDEX "public"."IDX_a3bb2d01cfa0f95bc5e034e1b7"`,
 		);
 		await queryRunner.query(`DROP TABLE "courses"`);
 		await queryRunner.query(`DROP TYPE "public"."course_level"`);
+		await queryRunner.query(
+			`DROP INDEX "public"."IDX_420d9f679d41281f282f5bc7d0"`,
+		);
+		await queryRunner.query(`DROP TABLE "categories"`);
 		await queryRunner.query(`DROP INDEX "public"."idx_section_course_order"`);
 		await queryRunner.query(`DROP INDEX "public"."idx_section_course"`);
 		await queryRunner.query(`DROP TABLE "sections"`);
@@ -190,10 +232,6 @@ export class InitialSchema1763748947735 implements MigrationInterface {
 		await queryRunner.query(`DROP INDEX "public"."idx_quiz_lesson_order"`);
 		await queryRunner.query(`DROP TABLE "quizzes"`);
 		await queryRunner.query(`DROP TYPE "public"."quiz_type"`);
-		await queryRunner.query(
-			`DROP INDEX "public"."IDX_b3aa10c29ea4e61a830362bd25"`,
-		);
-		await queryRunner.query(`DROP TABLE "tags"`);
 		await queryRunner.query(
 			`DROP INDEX "public"."IDX_283c974372e384adfc2c51ae18"`,
 		);

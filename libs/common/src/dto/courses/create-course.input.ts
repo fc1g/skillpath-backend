@@ -1,9 +1,9 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { ArrayNotEmpty, IsArray, IsNotEmpty, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 import { CourseLevel } from '@app/common/enums';
-import { CreateTagInput } from '@app/common/dto';
+import { CreateCategoryInput, CreateTagInput } from '@app/common/dto';
 
 @InputType()
 export class CreateCourseInput {
@@ -12,6 +12,7 @@ export class CreateCourseInput {
 	@IsNotEmpty()
 	@MaxLength(255)
 	@Expose()
+	@Transform(({ value }: { value: string }) => value.trim())
 	title: string;
 
 	@Field()
@@ -19,19 +20,15 @@ export class CreateCourseInput {
 	@IsNotEmpty()
 	@MaxLength(255)
 	@Expose()
+	@Transform(({ value }: { value: string }) => value.trim())
 	subtitle: string;
 
 	@Field()
 	@ApiProperty()
 	@IsNotEmpty()
 	@Expose()
+	@Transform(({ value }: { value: string }) => value.trim())
 	description: string;
-
-	@Field()
-	@ApiProperty()
-	@IsNotEmpty()
-	@Expose()
-	slug: string;
 
 	@Field(() => [String])
 	@ApiProperty({ type: [String] })
@@ -66,6 +63,7 @@ export class CreateCourseInput {
 	})
 	@IsNotEmpty()
 	@Expose()
+	@Transform(({ value }: { value: string }) => value.trim().toLowerCase())
 	level: CourseLevel;
 
 	@Field(() => [CreateTagInput])
@@ -73,6 +71,16 @@ export class CreateCourseInput {
 	@IsArray()
 	@ArrayNotEmpty()
 	@IsNotEmpty({ each: true })
+	@Type(() => CreateTagInput)
 	@Expose()
 	tags: CreateTagInput[];
+
+	@Field(() => [CreateCategoryInput])
+	@ApiProperty({ type: () => [CreateCategoryInput] })
+	@IsArray()
+	@ArrayNotEmpty()
+	@IsNotEmpty({ each: true })
+	@Type(() => CreateCategoryInput)
+	@Expose()
+	categories: CreateCategoryInput[];
 }

@@ -20,6 +20,8 @@ import { SectionsModule } from './sections/sections.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { ChallengesModule } from './challenges/challenges.module';
+import { CategoriesModule } from './categories/categories.module';
+import { FieldResolversModule } from './field-resolvers/field-resolvers.module';
 
 @Module({
 	imports: [
@@ -42,9 +44,9 @@ import { ChallengesModule } from './challenges/challenges.module';
 			playground: false,
 			graphiql: true,
 			autoSchemaFile: join(process.cwd(), 'apps/courses/schema.graphql'),
-			installSubscriptionHandlers: true,
 			buildSchemaOptions: {
 				numberScalarMode: 'integer',
+				dateScalarMode: 'timestamp',
 			},
 			subscriptions: {
 				'graphql-ws': true,
@@ -55,6 +57,8 @@ import { ChallengesModule } from './challenges/challenges.module';
 		QuizzesModule,
 		LessonsModule,
 		ChallengesModule,
+		CategoriesModule,
+		FieldResolversModule,
 	],
 	providers: [CoursesResolver, CoursesService, CoursesRepository],
 })

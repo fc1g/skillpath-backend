@@ -9,6 +9,7 @@ import { TagsRepository } from './tags.repository';
 import {
 	CreateTagInput,
 	DEFAULT_TAKE,
+	PaginationQueryInput,
 	POSTGRES_UNIQUE_VIOLATION,
 	Tag,
 	UpdateTagInput,
@@ -25,6 +26,7 @@ export class TagsService {
 		const tag = plainToClass(Tag, {
 			name: createTagInput.name,
 		});
+
 		try {
 			return await this.tagsRepository.create(tag);
 		} catch (err) {
@@ -39,11 +41,12 @@ export class TagsService {
 		}
 	}
 
-	async find(): Promise<Tag[]> {
+	async find(paginationQueryInput: PaginationQueryInput): Promise<Tag[]> {
 		return this.tagsRepository.find(
 			{},
 			{
-				take: DEFAULT_TAKE,
+				skip: paginationQueryInput.offset ?? 0,
+				take: paginationQueryInput.limit ?? DEFAULT_TAKE,
 			},
 		);
 	}

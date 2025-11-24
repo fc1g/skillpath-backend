@@ -13,6 +13,7 @@ import {
 import { Section, Tag } from '@app/common/entities';
 import { CourseLevel } from '@app/common/enums';
 import slugify from 'slugify';
+import { Category } from '@app/common/entities/courses/category.entity';
 
 @ObjectType()
 @Entity('courses')
@@ -84,6 +85,15 @@ export class Course extends AbstractEntity<Course> {
 		inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
 	})
 	tags: Tag[];
+
+	@Field(() => [Category])
+	@ManyToMany(() => Category, { cascade: ['insert'] })
+	@JoinTable({
+		name: 'course_categories',
+		joinColumn: { name: 'course_id', referencedColumnName: 'id' },
+		inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' },
+	})
+	categories: Category[];
 
 	@Field(() => [Section])
 	@OneToMany(() => Section, section => section.course, {

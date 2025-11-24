@@ -4,3 +4,4 @@ export * from './section.entity';
 export * from './lesson.entity';
 export * from './quiz.entity';
 export * from './challenge.entity';
+export * from './category.entity';

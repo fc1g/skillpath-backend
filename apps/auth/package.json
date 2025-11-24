@@ -4,7 +4,7 @@
 	"private": true,
 	"main": "dist/auth/main.js",
 	"license": "ISC",
-	"packageManager": "pnpm@10.20.0",
+	"packageManager": "pnpm@10.23.0",
 	"dependencies": {
 		"@nestjs/jwt": "^11.0.1",
 		"@nestjs/passport": "^11.0.5",
