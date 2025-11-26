@@ -1,10 +1,4 @@
 import {
-	Injectable,
-	InternalServerErrorException,
-	Logger,
-} from '@nestjs/common';
-import { CoursesRepository } from './courses.repository';
-import {
 	Course,
 	CoursesPaginationQueryInput,
 	CreateCourseInput,
@@ -13,10 +7,13 @@ import {
 	POSTGRES_UNIQUE_VIOLATION,
 	UpdateCourseInput,
 } from '@app/common';
-import { TagsService } from './tags/tags.service';
+import { Injectable, InternalServerErrorException, Logger, } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
-import { CategoriesService } from './categories/categories.service';
 import { ILike } from 'typeorm';
+import { CategoriesService } from './categories/categories.service';
+import { CoursesRepository } from './courses.repository';
+import { CoursesWithTotalObject } from './dto/courses-with-total.object';
+import { TagsService } from './tags/tags.service';
 
 @Injectable()
 export class CoursesService {
@@ -63,7 +60,7 @@ export class CoursesService {
 
 	async find(
 		coursesPaginationQueryInput: CoursesPaginationQueryInput,
-	): Promise<Course[]> {
+	): Promise<CoursesWithTotalObject> {
 		const { level, category, search, offset, limit } =
 			coursesPaginationQueryInput;
 
@@ -79,7 +76,10 @@ export class CoursesService {
 				]
 			: baseWhere;
 
-		return this.coursesRepository.find(where, {
+		return this.coursesRepository.findWithTotal(where, {
+			order: {
+				createdAt: 'DESC',
+			},
 			skip: offset ?? 0,
 			take: limit ?? DEFAULT_TAKE,
 		});

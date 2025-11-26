@@ -31,6 +31,17 @@ export abstract class AbstractRepository<T extends AbstractEntity<T>> {
 		return this.repo.find({ where, ...options });
 	}
 
+	async findWithTotal(
+		where: FindOptionsWhere<T> | FindOptionsWhere<T>[],
+		options?: FindManyOptions<T>,
+	): Promise<{
+		items: T[];
+		total: number;
+	}> {
+		const [items, total] = await this.repo.findAndCount({ where, ...options });
+		return { items, total };
+	}
+
 	async findOne(
 		where: FindOptionsWhere<T>,
 		options?: FindOneOptions<T>,

@@ -60,6 +60,10 @@ export class Course extends AbstractEntity<Course> {
 	averageRating: number;
 
 	@Field(() => Int)
+	@Column('int', { default: 0, name: 'ratings_count' })
+	ratingsCount: number;
+
+	@Field(() => Int)
 	@Column('int', { default: 0, name: 'students_count' })
 	studentsCount: number;
 

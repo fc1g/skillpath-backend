@@ -9,6 +9,7 @@ import {
 } from '@app/common';
 import { ParseUUIDPipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { CoursesWithTotalObject } from './dto/courses-with-total.object';
 
 @ApiTags('Courses')
 @Resolver(() => Course)
@@ -22,7 +23,7 @@ export class CoursesResolver {
 		return this.coursesService.create(createCourseInput);
 	}
 
-	@Query(() => [Course], { name: 'courses' })
+	@Query(() => CoursesWithTotalObject, { name: 'courses' })
 	async findAll(
 		@Args('coursesPaginationQueryInput')
 		coursesPaginationQueryInput: CoursesPaginationQueryInput,
