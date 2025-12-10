@@ -23,6 +23,9 @@ import * as Joi from 'joi';
 					HTTP_HOST: Joi.string().hostname().required(),
 					HTTP_TIMEOUT: Joi.number().positive().min(1000).default(5000),
 
+					AUTH_HOST: Joi.string().hostname().required(),
+					AUTH_PORT: Joi.number().port().required(),
+
 					BASE_AUTH_HTTP_URL: Joi.string().uri().required(),
 
 					REFRESH_EXPIRES: Joi.number().positive().default(604800),

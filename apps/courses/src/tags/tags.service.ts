@@ -7,14 +7,15 @@ import {
 } from '@nestjs/common';
 import { TagsRepository } from './tags.repository';
 import {
-	CreateTagInput,
 	DEFAULT_TAKE,
 	PaginationQueryInput,
 	POSTGRES_UNIQUE_VIOLATION,
 	Tag,
-	UpdateTagInput,
 } from '@app/common';
 import { plainToClass } from 'class-transformer';
+import { CreateTagInput } from './dto/create-tag.input';
+import { UpdateTagInput } from './dto/update-tag.input';
+import { QueryFailedError } from 'typeorm';
 
 @Injectable()
 export class TagsService {
@@ -31,7 +32,10 @@ export class TagsService {
 			return await this.tagsRepository.create(tag);
 		} catch (err) {
 			this.logger.error('Failed to create tag', err);
-			if ((err as { code?: string }).code === POSTGRES_UNIQUE_VIOLATION) {
+			if (
+				err instanceof QueryFailedError &&
+				(err.driverError as { code: string }).code === POSTGRES_UNIQUE_VIOLATION
+			) {
 				throw new ConflictException('Tag with this name already exists');
 			}
 

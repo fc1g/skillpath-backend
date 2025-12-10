@@ -3,11 +3,13 @@ import { CoursesModule } from './courses.module';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
+import cookieParser from 'cookie-parser';
 
 void (async function bootstrap() {
 	const app = await NestFactory.create(CoursesModule);
 	const configService: ConfigService = app.get(ConfigService);
 
+	app.use(cookieParser());
 	app.useGlobalPipes(
 		new ValidationPipe({
 			whitelist: true,

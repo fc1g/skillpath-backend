@@ -26,6 +26,11 @@ export class TagsByCourseLoader extends DataLoader<string, Tag[]> {
 			},
 		});
 
-		return coursesWithTags.map(course => course.tags);
+		const courseIdToTags = new Map<string, Tag[]>();
+		coursesWithTags.forEach(course => {
+			courseIdToTags.set(course.id, course.tags);
+		});
+
+		return coursesIds.map(courseId => courseIdToTags.get(courseId) || []);
 	}
 }

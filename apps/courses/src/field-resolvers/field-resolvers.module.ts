@@ -5,6 +5,8 @@ import { TagsByCourseLoader } from '../data-loaders/tags-by-course.loader';
 import { CategoriesByCourseLoader } from '../data-loaders/categories-by-course.loader';
 import { CoursesRepository } from '../courses.repository';
 import { Course, DatabaseModule } from '@app/common';
+import { CourseSectionsResolver } from './course-sections.resolver';
+import { SectionsByCourseLoader } from '../data-loaders/sections-by-course.loader';
 
 @Module({
 	imports: [DatabaseModule.forFeature([Course])],
@@ -12,9 +14,15 @@ import { Course, DatabaseModule } from '@app/common';
 		CoursesRepository,
 		TagsByCourseLoader,
 		CategoriesByCourseLoader,
+		SectionsByCourseLoader,
 		CourseTagsResolver,
 		CourseCategoriesResolver,
+		CourseSectionsResolver,
 	],
-	exports: [CourseTagsResolver, CourseCategoriesResolver],
+	exports: [
+		CourseTagsResolver,
+		CourseCategoriesResolver,
+		CourseSectionsResolver,
+	],
 })
 export class FieldResolversModule {}

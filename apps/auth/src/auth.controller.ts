@@ -10,11 +10,16 @@ import { AuthService } from './auth.service';
 import {
 	CreateUserDto,
 	CurrentUser,
+	MeDto,
 	RefreshTokenPayloadInterface,
+	Serialize,
 	User,
 } from '@app/common';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { RefreshJwtGuard } from './guards/refresh-jwt.guard';
+import { AccessJwtGuard } from './guards/access-jwt.guard';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+import { UserMapper } from './users/mappers/user.mapper';
 
 @Controller('auth')
 export class AuthController {
@@ -49,5 +54,12 @@ export class AuthController {
 		@CurrentUser() refreshTokenPayload: RefreshTokenPayloadInterface,
 	) {
 		return this.authService.rotateTokens(refreshTokenPayload);
+	}
+
+	@UseGuards(AccessJwtGuard)
+	@Serialize(MeDto)
+	@MessagePattern('authenticate')
+	authenticate(@Payload() data: { user: User }) {
+		return UserMapper.toMeDto(data.user);
 	}
 }

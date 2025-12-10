@@ -1,19 +1,25 @@
 import {
 	Course,
-	CoursesPaginationQueryInput,
-	CreateCourseInput,
 	DEFAULT_TAKE,
 	PaginationQueryInput,
 	POSTGRES_UNIQUE_VIOLATION,
-	UpdateCourseInput,
 } from '@app/common';
-import { Injectable, InternalServerErrorException, Logger, } from '@nestjs/common';
+import {
+	ConflictException,
+	Injectable,
+	InternalServerErrorException,
+	Logger,
+} from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
-import { ILike } from 'typeorm';
+import { ILike, QueryFailedError } from 'typeorm';
 import { CategoriesService } from './categories/categories.service';
 import { CoursesRepository } from './courses.repository';
+import { CoursesPaginationQueryInput } from './dto/courses-pagination-query.input';
 import { CoursesWithTotalObject } from './dto/courses-with-total.object';
+import { CreateCourseInput } from './dto/create-course.input';
+import { UpdateCourseInput } from './dto/update-course.input';
 import { TagsService } from './tags/tags.service';
+import { SectionsService } from './sections/sections.service';
 
 @Injectable()
 export class CoursesService {
@@ -23,6 +29,7 @@ export class CoursesService {
 		private readonly coursesRepository: CoursesRepository,
 		private readonly tagsService: TagsService,
 		private readonly categoriesService: CategoriesService,
+		private readonly sectionsService: SectionsService,
 	) {}
 
 	async create(createCourseInput: CreateCourseInput): Promise<Course> {
@@ -45,11 +52,25 @@ export class CoursesService {
 		});
 
 		try {
-			return await this.coursesRepository.create(course);
+			const newCourse = await this.coursesRepository.create(course);
+
+			const sections = await Promise.all(
+				createCourseInput.sections.map(createSectionInput =>
+					this.sectionsService.preloadSection({
+						...createSectionInput,
+						courseId: newCourse.id,
+					}),
+				),
+			);
+
+			return this.update(newCourse.id, { sections });
 		} catch (err) {
 			this.logger.error('Failed to create course', err);
-			if ((err as { code: string }).code === POSTGRES_UNIQUE_VIOLATION) {
-				throw new Error('Course with this title already exists');
+			if (
+				err instanceof QueryFailedError &&
+				(err.driverError as { code: string }).code === POSTGRES_UNIQUE_VIOLATION
+			) {
+				throw new ConflictException('Course with this title already exists');
 			}
 
 			throw new InternalServerErrorException(

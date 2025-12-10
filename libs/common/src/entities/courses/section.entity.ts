@@ -17,18 +17,12 @@ import { Challenge } from '@app/common/entities/courses/challenge.entity';
 @Index('idx_section_course_order', ['course', 'order'], { unique: true })
 export class Section extends AbstractEntity<Section> {
 	@Field()
-	@Column('varchar', { length: 255 })
+	@Column('varchar', { length: 255, unique: true })
 	title: string;
 
 	@Field(() => Int)
 	@Column('int', { default: 0 })
 	order: number;
-
-	@Field(() => Int, {
-		description: 'Total duration in seconds',
-	})
-	@Column('int', { default: 0, name: 'duration_seconds' })
-	durationSeconds: number;
 
 	@Field(() => Course)
 	@Index('idx_section_course', ['course'])
@@ -49,11 +43,4 @@ export class Section extends AbstractEntity<Section> {
 		cascade: true,
 	})
 	challenges: Challenge[];
-
-	@Field(() => Int, {
-		description: 'Total duration in hours (rounded up)',
-	})
-	get durationHours(): number {
-		return Math.ceil(this.durationSeconds / 3600);
-	}
 }

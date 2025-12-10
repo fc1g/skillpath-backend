@@ -1,4 +1,5 @@
 import {
+	ConflictException,
 	Injectable,
 	InternalServerErrorException,
 	Logger,
@@ -6,13 +7,14 @@ import {
 import { CategoriesRepository } from './categories.repository';
 import {
 	Category,
-	CreateCategoryInput,
 	DEFAULT_TAKE,
 	PaginationQueryInput,
 	POSTGRES_UNIQUE_VIOLATION,
-	UpdateCategoryInput,
 } from '@app/common';
 import { plainToClass } from 'class-transformer';
+import { CreateCategoryInput } from './dto/create-category.input';
+import { UpdateCategoryInput } from './dto/update-category.input';
+import { QueryFailedError } from 'typeorm';
 
 @Injectable()
 export class CategoriesService {
@@ -29,8 +31,11 @@ export class CategoriesService {
 			return await this.categoriesRepository.create(category);
 		} catch (err) {
 			this.logger.error('Failed to create category', err);
-			if ((err as { code?: string }).code === POSTGRES_UNIQUE_VIOLATION) {
-				throw new Error('Category with this name already exists');
+			if (
+				err instanceof QueryFailedError &&
+				(err.driverError as { code: string }).code === POSTGRES_UNIQUE_VIOLATION
+			) {
+				throw new ConflictException('Category with this name already exists');
 			}
 
 			throw new InternalServerErrorException(

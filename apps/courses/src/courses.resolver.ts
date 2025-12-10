@@ -1,21 +1,26 @@
-import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { CoursesService } from './courses.service';
 import {
 	Course,
-	CoursesPaginationQueryInput,
-	CreateCourseInput,
+	JwtAuthGuard,
 	PaginationQueryInput,
-	UpdateCourseInput,
+	Roles,
+	RoleType,
 } from '@app/common';
-import { ParseUUIDPipe } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ApiTags } from '@nestjs/swagger';
+import { CoursesService } from './courses.service';
+import { CoursesPaginationQueryInput } from './dto/courses-pagination-query.input';
 import { CoursesWithTotalObject } from './dto/courses-with-total.object';
+import { CreateCourseInput } from './dto/create-course.input';
+import { UpdateCourseInput } from './dto/update-course.input';
 
 @ApiTags('Courses')
 @Resolver(() => Course)
 export class CoursesResolver {
 	constructor(private readonly coursesService: CoursesService) {}
 
+	@Roles(RoleType.ADMIN)
+	@UseGuards(JwtAuthGuard)
 	@Mutation(() => Course, { name: 'createCourse' })
 	async create(
 		@Args('createCourseInput') createCourseInput: CreateCourseInput,
@@ -43,6 +48,8 @@ export class CoursesResolver {
 		return this.coursesService.findOne(id);
 	}
 
+	@Roles(RoleType.ADMIN)
+	@UseGuards(JwtAuthGuard)
 	@Mutation(() => Course, { name: 'updateCourse' })
 	async update(
 		@Args('id', { type: () => ID }, ParseUUIDPipe) id: string,
@@ -51,6 +58,8 @@ export class CoursesResolver {
 		return this.coursesService.update(id, updateCourseInput);
 	}
 
+	@Roles(RoleType.ADMIN)
+	@UseGuards(JwtAuthGuard)
 	@Mutation(() => Course, { name: 'removeCourse' })
 	async delete(@Args('id', { type: () => ID }, ParseUUIDPipe) id: string) {
 		return this.coursesService.remove(id);

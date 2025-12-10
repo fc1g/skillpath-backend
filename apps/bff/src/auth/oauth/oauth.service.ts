@@ -3,7 +3,7 @@ import { HttpService, ProviderType } from '@app/common';
 import { CookieService } from '../cookie/cookie.service';
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
-import { RequestService } from '../request/request.service';
+import { RequestService } from '../../request/request.service';
 import { IssuedTokensDto } from '../dto/issued-tokens.dto';
 
 @Injectable()

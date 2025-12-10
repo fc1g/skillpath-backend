@@ -28,6 +28,11 @@ export class CategoriesByCourseLoader extends DataLoader<string, Category[]> {
 			},
 		});
 
-		return coursesWithCategories.map(course => course.categories);
+		const courseIdToCategories = new Map<string, Category[]>();
+		coursesWithCategories.forEach(course => {
+			courseIdToCategories.set(course.id, course.categories);
+		});
+
+		return coursesIds.map(courseId => courseIdToCategories.get(courseId) || []);
 	}
 }

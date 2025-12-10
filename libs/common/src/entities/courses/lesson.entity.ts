@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import {
 	Column,
 	Entity,
@@ -16,7 +16,7 @@ import { Quiz } from '@app/common/entities/courses/quiz.entity';
 @Index('idx_lesson_section_order', ['section', 'order'], { unique: true })
 export class Lesson extends AbstractEntity<Lesson> {
 	@Field()
-	@Column('varchar', { length: 255 })
+	@Column('varchar', { length: 255, unique: true })
 	title: string;
 
 	@Field(() => Int)
@@ -26,6 +26,12 @@ export class Lesson extends AbstractEntity<Lesson> {
 	@Field()
 	@Column('text')
 	content: string;
+
+	@Field(() => Int, {
+		description: 'Total duration in seconds',
+	})
+	@Column('int', { default: 0, name: 'duration_seconds' })
+	durationSeconds: number;
 
 	@Field(() => Section)
 	@ManyToOne(() => Section, section => section.lessons, {
@@ -39,4 +45,8 @@ export class Lesson extends AbstractEntity<Lesson> {
 		cascade: true,
 	})
 	quizzes: Quiz[];
+
+	@Field(() => ID)
+	@Column('uuid', { name: 'course_id' })
+	courseId: string;
 }

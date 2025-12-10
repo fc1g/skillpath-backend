@@ -4,11 +4,13 @@ import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
 
 void (async function bootstrap() {
 	const app = await NestFactory.create(BffModule);
 	const configService: ConfigService = app.get(ConfigService);
 
+	app.use(cookieParser());
 	app.useGlobalPipes(
 		new ValidationPipe({
 			whitelist: true,

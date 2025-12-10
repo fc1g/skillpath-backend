@@ -1,7 +1,7 @@
 import { HttpService, UserDto } from '@app/common';
 import { Injectable } from '@nestjs/common';
 import type { Request } from 'express';
-import { RequestService } from '../request/request.service';
+import { RequestService } from '../../request/request.service';
 
 @Injectable()
 export class UsersService {

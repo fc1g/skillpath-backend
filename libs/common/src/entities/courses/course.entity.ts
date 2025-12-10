@@ -105,13 +105,6 @@ export class Course extends AbstractEntity<Course> {
 	})
 	sections: Section[];
 
-	@Field(() => Int, {
-		description: 'Total duration in hours (rounded up)',
-	})
-	get durationHours(): number {
-		return Math.ceil(this.durationSeconds / 3600);
-	}
-
 	@BeforeInsert()
 	@BeforeUpdate()
 	generateSlug() {
