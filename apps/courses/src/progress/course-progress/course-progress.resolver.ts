@@ -4,6 +4,7 @@ import { CourseProgress, PaginationQueryInput } from '@app/common';
 import { ParseUUIDPipe } from '@nestjs/common';
 import { UpdateCourseProgressInput } from './dto/update-course-progress.input';
 import { CreateCourseProgressInput } from './dto/create-course-progress.input';
+import { CourseProgressesWithTotalObject } from './dto/course-progresses-with-total.object';
 
 @Resolver(() => CourseProgress)
 export class CourseProgressResolver {
@@ -19,7 +20,7 @@ export class CourseProgressResolver {
 		);
 	}
 
-	@Query(() => [CourseProgress], { name: 'courseProgresses' })
+	@Query(() => CourseProgressesWithTotalObject, { name: 'courseProgresses' })
 	async findAll(
 		@Args('paginationQueryInput') paginationQueryInput: PaginationQueryInput,
 	) {

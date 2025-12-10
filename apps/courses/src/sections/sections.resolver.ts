@@ -4,6 +4,7 @@ import { PaginationQueryInput, Section } from '@app/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateSectionInput } from './dto/create-section.input';
 import { ParseUUIDPipe } from '@nestjs/common';
+import { SectionsWithTotalObject } from './dto/sections-with-total.object';
 
 @ApiTags('Sections')
 @Resolver(() => Section)
@@ -17,7 +18,7 @@ export class SectionsResolver {
 		return this.sectionsService.create(createSectionInput);
 	}
 
-	@Query(() => [Section], { name: 'sections' })
+	@Query(() => SectionsWithTotalObject, { name: 'sections' })
 	async findAll(
 		@Args('paginationQueryInput') paginationQueryInput: PaginationQueryInput,
 	) {

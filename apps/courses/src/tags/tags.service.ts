@@ -16,6 +16,7 @@ import { plainToClass } from 'class-transformer';
 import { CreateTagInput } from './dto/create-tag.input';
 import { UpdateTagInput } from './dto/update-tag.input';
 import { QueryFailedError } from 'typeorm';
+import { TagsWithTotalObject } from './dto/tags-with-total.object';
 
 @Injectable()
 export class TagsService {
@@ -45,8 +46,10 @@ export class TagsService {
 		}
 	}
 
-	async find(paginationQueryInput: PaginationQueryInput): Promise<Tag[]> {
-		return this.tagsRepository.find(
+	async find(
+		paginationQueryInput: PaginationQueryInput,
+	): Promise<TagsWithTotalObject> {
+		return this.tagsRepository.findWithTotal(
 			{},
 			{
 				skip: paginationQueryInput.offset ?? 0,

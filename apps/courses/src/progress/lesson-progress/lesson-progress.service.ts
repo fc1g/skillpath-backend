@@ -18,6 +18,7 @@ import { UpdateLessonProgressInput } from './dto/update-lesson-progress.input';
 import { CreateLessonProgressInput } from './dto/create-lesson-progress.input';
 import { DataSource, QueryFailedError } from 'typeorm';
 import { plainToClass } from 'class-transformer';
+import { LessonProgressesWithTotalObject } from './dto/lesson-progresses-with-total.object';
 
 @Injectable()
 export class LessonProgressService {
@@ -62,8 +63,8 @@ export class LessonProgressService {
 
 	async find(
 		paginationQueryInput: PaginationQueryInput,
-	): Promise<LessonProgress[]> {
-		return this.lessonProgressRepository.find(
+	): Promise<LessonProgressesWithTotalObject> {
+		return this.lessonProgressRepository.findWithTotal(
 			{},
 			{
 				skip: paginationQueryInput.offset ?? 0,

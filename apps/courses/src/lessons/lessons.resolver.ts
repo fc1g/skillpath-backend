@@ -11,6 +11,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { CreateLessonInput } from './dto/create-lesson.input';
 import { UpdateLessonInput } from './dto/update-lesson.input';
+import { LessonsWithTotalObject } from './dto/lessons-with-total.object';
 
 @ApiTags('Lessons')
 @Resolver(() => Lesson)
@@ -26,7 +27,7 @@ export class LessonsResolver {
 		return this.lessonsService.create(createLessonInput);
 	}
 
-	@Query(() => [Lesson], { name: 'lessons' })
+	@Query(() => LessonsWithTotalObject, { name: 'lessons' })
 	async findAll(
 		@Args('paginationQueryInput') paginationQueryInput: PaginationQueryInput,
 	) {

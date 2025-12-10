@@ -11,6 +11,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { CreateTagInput } from './dto/create-tag.input';
 import { UpdateTagInput } from './dto/update-tag.input';
 import { TagsService } from './tags.service';
+import { TagsWithTotalObject } from './dto/tags-with-total.object';
 
 @ApiTags('Tags')
 @Resolver(() => Tag)
@@ -24,7 +25,7 @@ export class TagsResolver {
 		return this.tagsService.create(createTagInput);
 	}
 
-	@Query(() => [Tag], { name: 'tags' })
+	@Query(() => TagsWithTotalObject, { name: 'tags' })
 	async findAll(
 		@Args('paginationQueryInput') paginationQueryInput: PaginationQueryInput,
 	) {

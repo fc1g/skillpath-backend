@@ -10,6 +10,7 @@ import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateUserRatingInput } from './dto/create-user-rating.input';
 import { UserRatingsService } from './user-ratings.service';
+import { UserRatingsWithTotalObject } from './dto/user-ratings-with-total.object';
 
 @ApiTags('UserRatings')
 @Resolver(() => UserRating)
@@ -25,7 +26,7 @@ export class UserRatingsResolver {
 		return this.userRatingsService.rateCourse(user, createUserRatingInput);
 	}
 
-	@Query(() => [UserRating], { name: 'userRatings' })
+	@Query(() => UserRatingsWithTotalObject, { name: 'userRatings' })
 	findAll(
 		@Args('paginationQueryInput') paginationQueryInput: PaginationQueryInput,
 	) {

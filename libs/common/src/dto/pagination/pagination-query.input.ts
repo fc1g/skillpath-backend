@@ -3,12 +3,12 @@ import { IsOptional, IsPositive, Min } from 'class-validator';
 
 @InputType()
 export class PaginationQueryInput {
-	@Field(() => Int)
+	@Field(() => Int, { nullable: true })
 	@IsOptional()
 	@IsPositive()
 	limit?: number;
 
-	@Field(() => Int)
+	@Field(() => Int, { nullable: true })
 	@IsOptional()
 	@Min(0)
 	offset?: number;

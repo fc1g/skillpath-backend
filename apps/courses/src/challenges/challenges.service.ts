@@ -17,6 +17,7 @@ import { UpdateChallengeInput } from './dto/update-challenge.input';
 import { ChallengesRepository } from './challenges.repository';
 import { plainToClass } from 'class-transformer';
 import { DataSource, QueryFailedError } from 'typeorm';
+import { ChallengesWithTotalObject } from './dto/challenges-with-total.object';
 
 @Injectable()
 export class ChallengesService {
@@ -84,8 +85,10 @@ export class ChallengesService {
 		});
 	}
 
-	async find(paginationQueryInput: PaginationQueryInput): Promise<Challenge[]> {
-		return this.challengesRepository.find(
+	async find(
+		paginationQueryInput: PaginationQueryInput,
+	): Promise<ChallengesWithTotalObject> {
+		return this.challengesRepository.findWithTotal(
 			{},
 			{
 				skip: paginationQueryInput.offset ?? 0,

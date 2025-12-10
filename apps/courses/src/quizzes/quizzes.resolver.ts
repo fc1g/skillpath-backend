@@ -11,6 +11,7 @@ import {
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { CreateQuizInput } from './dto/create-quiz.input';
 import { UpdateQuizInput } from './dto/update-quiz.input';
+import { QuizzesWithTotalObject } from './dto/quizzes-with-total.object';
 
 @Resolver(() => Quiz)
 export class QuizzesResolver {
@@ -23,7 +24,7 @@ export class QuizzesResolver {
 		return this.quizzesService.preloadQuiz(createQuizInput);
 	}
 
-	@Query(() => [Quiz], { name: 'quizzes' })
+	@Query(() => QuizzesWithTotalObject, { name: 'quizzes' })
 	async findAll(
 		@Args('paginationQueryInput') paginationQueryInput: PaginationQueryInput,
 	) {

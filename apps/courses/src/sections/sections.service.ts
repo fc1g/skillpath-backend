@@ -18,6 +18,7 @@ import { plainToClass } from 'class-transformer';
 import { QueryFailedError } from 'typeorm';
 import { LessonsService } from '../lessons/lessons.service';
 import { ChallengesService } from '../challenges/challenges.service';
+import { SectionsWithTotalObject } from './dto/sections-with-total.object';
 
 @Injectable()
 export class SectionsService {
@@ -77,8 +78,10 @@ export class SectionsService {
 		}
 	}
 
-	async find(paginationQueryInput: PaginationQueryInput): Promise<Section[]> {
-		return this.sectionsRepository.find(
+	async find(
+		paginationQueryInput: PaginationQueryInput,
+	): Promise<SectionsWithTotalObject> {
+		return this.sectionsRepository.findWithTotal(
 			{},
 			{
 				skip: paginationQueryInput.offset ?? 0,

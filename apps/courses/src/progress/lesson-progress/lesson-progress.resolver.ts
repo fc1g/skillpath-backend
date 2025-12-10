@@ -4,6 +4,7 @@ import { LessonProgress, PaginationQueryInput } from '@app/common';
 import { CreateLessonProgressInput } from './dto/create-lesson-progress.input';
 import { ParseUUIDPipe } from '@nestjs/common';
 import { UpdateLessonProgressInput } from './dto/update-lesson-progress.input';
+import { LessonsWithTotalObject } from '../../lessons/dto/lessons-with-total.object';
 
 @Resolver(() => LessonProgress)
 export class LessonProgressResolver {
@@ -19,7 +20,7 @@ export class LessonProgressResolver {
 		);
 	}
 
-	@Query(() => [LessonProgress], { name: 'lessonProgresses' })
+	@Query(() => LessonsWithTotalObject, { name: 'lessonProgresses' })
 	async findAll(
 		@Args('paginationQueryInput') paginationQueryInput: PaginationQueryInput,
 	) {

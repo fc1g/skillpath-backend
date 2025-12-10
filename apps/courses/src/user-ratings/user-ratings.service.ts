@@ -9,6 +9,7 @@ import {
 } from '@app/common';
 import { DataSource, FindOptionsWhere } from 'typeorm';
 import { CreateUserRatingInput } from './dto/create-user-rating.input';
+import { UserRatingsWithTotalObject } from './dto/user-ratings-with-total.object';
 
 @Injectable()
 export class UserRatingsService {
@@ -68,8 +69,8 @@ export class UserRatingsService {
 
 	async find(
 		paginationQueryInput: PaginationQueryInput,
-	): Promise<UserRating[]> {
-		return this.userRatingsRepository.find(
+	): Promise<UserRatingsWithTotalObject> {
+		return this.userRatingsRepository.findWithTotal(
 			{},
 			{
 				skip: paginationQueryInput.offset ?? 0,

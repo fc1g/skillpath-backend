@@ -15,6 +15,7 @@ import { UpdateChallengeAttemptInput } from './dto/update-challenge-attempt.inpu
 import { QueryFailedError } from 'typeorm';
 import { plainToClass } from 'class-transformer';
 import { CreateChallengeAttemptInput } from './dto/create-challenge-attempt.input';
+import { ChallengeAttemptsWithTotalObject } from './dto/challenge-attempts-with-total.object';
 
 @Injectable()
 export class ChallengeAttemptService {
@@ -61,8 +62,8 @@ export class ChallengeAttemptService {
 
 	async find(
 		paginationQueryInput: PaginationQueryInput,
-	): Promise<ChallengeAttempt[]> {
-		return this.challengeAttemptRepository.find(
+	): Promise<ChallengeAttemptsWithTotalObject> {
+		return this.challengeAttemptRepository.findWithTotal(
 			{},
 			{
 				skip: paginationQueryInput.offset ?? 0,

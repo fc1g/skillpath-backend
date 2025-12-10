@@ -15,6 +15,7 @@ import { UpdateLessonInput } from '../lessons/dto/update-lesson.input';
 import { CreateQuizInput } from './dto/create-quiz.input';
 import { plainToClass } from 'class-transformer';
 import { QueryFailedError } from 'typeorm';
+import { QuizzesWithTotalObject } from './dto/quizzes-with-total.object';
 
 @Injectable()
 export class QuizzesService {
@@ -54,8 +55,10 @@ export class QuizzesService {
 		}
 	}
 
-	async find(paginationQueryInput: PaginationQueryInput): Promise<Quiz[]> {
-		return this.quizzesRepository.find(
+	async find(
+		paginationQueryInput: PaginationQueryInput,
+	): Promise<QuizzesWithTotalObject> {
+		return this.quizzesRepository.findWithTotal(
 			{},
 			{
 				skip: paginationQueryInput.offset || 0,

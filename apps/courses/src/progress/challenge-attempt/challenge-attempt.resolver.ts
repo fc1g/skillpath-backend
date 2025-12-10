@@ -4,6 +4,7 @@ import { ChallengeAttempt, PaginationQueryInput } from '@app/common';
 import { ParseUUIDPipe } from '@nestjs/common';
 import { UpdateChallengeAttemptInput } from './dto/update-challenge-attempt.input';
 import { CreateChallengeAttemptInput } from './dto/create-challenge-attempt.input';
+import { ChallengeAttemptsWithTotalObject } from './dto/challenge-attempts-with-total.object';
 
 @Resolver(() => ChallengeAttempt)
 export class ChallengeAttemptResolver {
@@ -19,7 +20,7 @@ export class ChallengeAttemptResolver {
 		return this.challengeAttemptService.create(createChallengeAttemptInput);
 	}
 
-	@Query(() => [ChallengeAttempt], { name: 'challengeAttempts' })
+	@Query(() => ChallengeAttemptsWithTotalObject, { name: 'challengeAttempts' })
 	async findAll(
 		@Args('paginationQueryInput') paginationQueryInput: PaginationQueryInput,
 	) {

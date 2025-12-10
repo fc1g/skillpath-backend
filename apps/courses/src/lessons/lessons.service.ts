@@ -19,6 +19,7 @@ import { plainToClass } from 'class-transformer';
 import { CreateLessonInput } from './dto/create-lesson.input';
 import { DataSource, QueryFailedError } from 'typeorm';
 import { QuizzesService } from '../quizzes/quizzes.service';
+import { LessonsWithTotalObject } from './dto/lessons-with-total.object';
 
 @Injectable()
 export class LessonsService {
@@ -92,8 +93,10 @@ export class LessonsService {
 		});
 	}
 
-	async find(paginationQueryInput: PaginationQueryInput): Promise<Lesson[]> {
-		return this.lessonsRepository.find(
+	async find(
+		paginationQueryInput: PaginationQueryInput,
+	): Promise<LessonsWithTotalObject> {
+		return this.lessonsRepository.findWithTotal(
 			{},
 			{
 				skip: paginationQueryInput.offset ?? 0,

@@ -15,6 +15,7 @@ import { plainToClass } from 'class-transformer';
 import { CreateCategoryInput } from './dto/create-category.input';
 import { UpdateCategoryInput } from './dto/update-category.input';
 import { QueryFailedError } from 'typeorm';
+import { CategoriesWithTotalObject } from './dto/categories-with-total.object';
 
 @Injectable()
 export class CategoriesService {
@@ -44,8 +45,10 @@ export class CategoriesService {
 		}
 	}
 
-	async find(paginationQueryInput: PaginationQueryInput): Promise<Category[]> {
-		return this.categoriesRepository.find(
+	async find(
+		paginationQueryInput: PaginationQueryInput,
+	): Promise<CategoriesWithTotalObject> {
+		return this.categoriesRepository.findWithTotal(
 			{},
 			{
 				skip: paginationQueryInput.offset ?? 0,

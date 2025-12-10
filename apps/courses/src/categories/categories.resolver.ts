@@ -11,6 +11,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryInput } from './dto/create-category.input';
 import { UpdateCategoryInput } from './dto/update-category.input';
+import { CategoriesWithTotalObject } from './dto/categories-with-total.object';
 
 @ApiTags('Categories')
 @Resolver(() => Category)
@@ -26,7 +27,7 @@ export class CategoriesResolver {
 		return this.categoriesService.create(createCategoryInput);
 	}
 
-	@Query(() => [Category], { name: 'categories' })
+	@Query(() => CategoriesWithTotalObject, { name: 'categories' })
 	async findAll(
 		@Args('paginationQueryInput') paginationQueryInput: PaginationQueryInput,
 	) {

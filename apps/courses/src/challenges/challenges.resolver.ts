@@ -4,6 +4,7 @@ import { Challenge, PaginationQueryInput } from '@app/common';
 import { CreateChallengeInput } from './dto/create-challenge.input';
 import { ParseUUIDPipe } from '@nestjs/common';
 import { UpdateChallengeInput } from './dto/update-challenge.input';
+import { ChallengesWithTotalObject } from './dto/challenges-with-total.object';
 
 @Resolver(() => Challenge)
 export class ChallengesResolver {
@@ -16,7 +17,7 @@ export class ChallengesResolver {
 		return this.challengesService.preloadChallenge(createChallengeInput);
 	}
 
-	@Query(() => [Challenge], { name: 'challenges' })
+	@Query(() => ChallengesWithTotalObject, { name: 'challenges' })
 	async findAll(
 		@Args('paginationQueryInput') paginationQueryInput: PaginationQueryInput,
 	) {
