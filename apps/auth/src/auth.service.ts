@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UsersService } from './users/users.service';
 import { CreateUserDto, RefreshTokenPayloadInterface, User } from '@app/common';
 import { JwtTokensService } from './jwt-tokens/jwt-tokens.service';
+import { UserMapper } from './users/mappers/user.mapper';
 
 @Injectable()
 export class AuthService {
@@ -12,11 +13,24 @@ export class AuthService {
 
 	async signup(createUserDto: CreateUserDto) {
 		const user = await this.usersService.create(createUserDto);
-		return this.tokensService.issuePairForUser(user);
+
+		const me = UserMapper.toMeDto(user);
+		const tokens = await this.tokensService.issuePairForUser(me);
+
+		return {
+			user: me,
+			...tokens,
+		};
 	}
 
 	async login(user: User) {
-		return this.tokensService.issuePairForUser(user);
+		const me = UserMapper.toMeDto(user);
+
+		const tokens = await this.tokensService.issuePairForUser(me);
+		return {
+			user: me,
+			...tokens,
+		};
 	}
 
 	async logout({ userId, jti }: RefreshTokenPayloadInterface) {
@@ -26,6 +40,12 @@ export class AuthService {
 	async rotateTokens({ userId, jti }: RefreshTokenPayloadInterface) {
 		const user = await this.usersService.findOne(userId);
 
-		return this.tokensService.rotate(user, jti);
+		const me = UserMapper.toMeDto(user);
+		const tokens = await this.tokensService.rotate(me, jti);
+
+		return {
+			user: me,
+			...tokens,
+		};
 	}
 }

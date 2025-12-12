@@ -1,26 +1,35 @@
 import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { LessonProgressService } from './lesson-progress.service';
-import { LessonProgress, PaginationQueryInput } from '@app/common';
+import {
+	CurrentUser,
+	JwtAuthGuard,
+	LessonProgress,
+	MeDto,
+	PaginationQueryInput,
+} from '@app/common';
 import { CreateLessonProgressInput } from './dto/create-lesson-progress.input';
-import { ParseUUIDPipe } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { UpdateLessonProgressInput } from './dto/update-lesson-progress.input';
-import { LessonsWithTotalObject } from '../../lessons/dto/lessons-with-total.object';
+import { LessonProgressesWithTotalObject } from './dto/lesson-progresses-with-total.object';
 
 @Resolver(() => LessonProgress)
 export class LessonProgressResolver {
 	constructor(private readonly lessonProgressService: LessonProgressService) {}
 
+	@UseGuards(JwtAuthGuard)
 	@Mutation(() => LessonProgress, { name: 'createLessonProgress' })
 	async create(
+		@CurrentUser() user: MeDto,
 		@Args('createLessonProgressInput')
 		createLessonProgressInput: CreateLessonProgressInput,
 	) {
-		return this.lessonProgressService.preloadLessonProgress(
-			createLessonProgressInput,
-		);
+		return this.lessonProgressService.preloadLessonProgress({
+			...createLessonProgressInput,
+			userId: user.id,
+		});
 	}
 
-	@Query(() => LessonsWithTotalObject, { name: 'lessonProgresses' })
+	@Query(() => LessonProgressesWithTotalObject, { name: 'lessonProgresses' })
 	async findAll(
 		@Args('paginationQueryInput') paginationQueryInput: PaginationQueryInput,
 	) {
@@ -35,14 +44,20 @@ export class LessonProgressResolver {
 		return this.lessonProgressService.findOne(userId, lessonId);
 	}
 
+	@UseGuards(JwtAuthGuard)
 	@Mutation(() => LessonProgress, { name: 'updateLessonProgress' })
 	async update(
+		@CurrentUser() user: MeDto,
 		@Args('updateLessonProgressInput')
 		updateLessonProgressInput: UpdateLessonProgressInput,
 	) {
-		return this.lessonProgressService.update(updateLessonProgressInput);
+		return this.lessonProgressService.update({
+			...updateLessonProgressInput,
+			userId: user.id,
+		});
 	}
 
+	@UseGuards(JwtAuthGuard)
 	@Mutation(() => LessonProgress, { name: 'removeLessonProgress' })
 	async delete(@Args('id', { type: () => ID }, ParseUUIDPipe) id: string) {
 		return this.lessonProgressService.remove(id);

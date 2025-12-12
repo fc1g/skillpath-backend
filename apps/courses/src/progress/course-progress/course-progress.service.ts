@@ -35,6 +35,10 @@ export class CourseProgressService {
 	async create(
 		createCourseProgressInput: CreateCourseProgressInput,
 	): Promise<CourseProgress> {
+		if (!createCourseProgressInput.userId) {
+			throw new ConflictException('User ID was not provided');
+		}
+
 		const courseProgress = plainToClass(CourseProgress, {
 			status: createCourseProgressInput.status,
 			userId: createCourseProgressInput.userId,
@@ -117,11 +121,15 @@ export class CourseProgressService {
 	}
 
 	async update(
-		id: string,
+		userId: string,
 		updateCourseProgressInput: UpdateCourseProgressInput,
 	): Promise<CourseProgress> {
+		const courseProgress = await this.findOneBy({
+			userId,
+			courseId: updateCourseProgressInput.courseId,
+		});
 		return this.courseProgressRepository.update(
-			{ id },
+			{ id: courseProgress.id },
 			updateCourseProgressInput,
 		);
 	}

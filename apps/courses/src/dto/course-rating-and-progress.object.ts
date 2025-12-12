@@ -3,7 +3,7 @@ import { CourseProgress } from '@app/common';
 import { Expose, Type } from 'class-transformer';
 
 @ObjectType()
-export class CourseUserRatingAndProgressObject {
+export class CourseRatingAndProgressObject {
 	@Field(() => Int, { nullable: true })
 	@Expose()
 	rating: number | null;

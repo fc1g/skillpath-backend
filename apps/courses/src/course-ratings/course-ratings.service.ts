@@ -1,34 +1,34 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { UserRatingsRepository } from './user-ratings.repository';
+import { CourseRatingsRepository } from './course-ratings.repository';
 import {
 	Course,
+	CourseRating,
 	DEFAULT_TAKE,
 	MeDto,
 	PaginationQueryInput,
-	UserRating,
 } from '@app/common';
 import { DataSource, FindOptionsWhere } from 'typeorm';
-import { CreateUserRatingInput } from './dto/create-user-rating.input';
-import { UserRatingsWithTotalObject } from './dto/user-ratings-with-total.object';
+import { CreateCourseRatingInput } from './dto/create-course-rating.input';
+import { CourseRatingsWithTotalObject } from './dto/course-ratings-with-total.object';
 
 @Injectable()
-export class UserRatingsService {
-	private readonly logger: Logger = new Logger(UserRatingsService.name);
+export class CourseRatingsService {
+	private readonly logger: Logger = new Logger(CourseRatingsService.name);
 
 	constructor(
-		private readonly userRatingsRepository: UserRatingsRepository,
+		private readonly courseRatingsRepository: CourseRatingsRepository,
 		private readonly dataSource: DataSource,
 	) {}
 
 	async rateCourse(
 		user: MeDto,
-		{ courseId, rating }: CreateUserRatingInput,
-	): Promise<UserRating> {
+		{ courseId, rating }: CreateCourseRatingInput,
+	): Promise<CourseRating> {
 		return this.dataSource.transaction(async manager => {
-			const userRatingsRepo = manager.getRepository(UserRating);
+			const courseRatingsRepo = manager.getRepository(CourseRating);
 			const courseRepo = manager.getRepository(Course);
 
-			await userRatingsRepo.upsert(
+			await courseRatingsRepo.upsert(
 				{
 					userId: user.id,
 					courseId,
@@ -37,7 +37,7 @@ export class UserRatingsService {
 				['userId', 'courseId'],
 			);
 
-			const builderResult = await userRatingsRepo
+			const builderResult = await courseRatingsRepo
 				.createQueryBuilder('userRating')
 				.select('AVG(userRating.rating)', 'avg')
 				.addSelect('COUNT(userRating.rating)', 'count')
@@ -61,7 +61,7 @@ export class UserRatingsService {
 				},
 			);
 
-			return userRatingsRepo.findOneOrFail({
+			return courseRatingsRepo.findOneOrFail({
 				where: { userId: user.id, courseId },
 			});
 		});
@@ -69,8 +69,8 @@ export class UserRatingsService {
 
 	async find(
 		paginationQueryInput: PaginationQueryInput,
-	): Promise<UserRatingsWithTotalObject> {
-		return this.userRatingsRepository.findWithTotal(
+	): Promise<CourseRatingsWithTotalObject> {
+		return this.courseRatingsRepository.findWithTotal(
 			{},
 			{
 				skip: paginationQueryInput.offset ?? 0,
@@ -79,11 +79,23 @@ export class UserRatingsService {
 		);
 	}
 
-	async findOne(id: string): Promise<UserRating> {
-		return this.userRatingsRepository.findOne({ id });
+	async findOne(id: string): Promise<CourseRating> {
+		return this.courseRatingsRepository.findOne({ id });
 	}
 
-	async findOneBy(where: FindOptionsWhere<UserRating>): Promise<UserRating> {
-		return this.userRatingsRepository.findOne(where);
+	async findOneBy(
+		where: FindOptionsWhere<CourseRating>,
+	): Promise<CourseRating | null> {
+		try {
+			return await this.courseRatingsRepository.findOne(where);
+		} catch (err) {
+			if (
+				err instanceof Error &&
+				(err as { status?: number })?.status === 404
+			) {
+				return null;
+			}
+			throw err;
+		}
 	}
 }

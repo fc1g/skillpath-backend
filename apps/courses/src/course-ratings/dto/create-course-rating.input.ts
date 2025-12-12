@@ -4,7 +4,7 @@ import { IsNotEmpty, IsOptional, IsUUID, Max, Min } from 'class-validator';
 import { Expose } from 'class-transformer';
 
 @InputType()
-export class CreateUserRatingInput {
+export class CreateCourseRatingInput {
 	@Field(() => ID)
 	@ApiProperty()
 	@IsNotEmpty()

@@ -23,9 +23,9 @@ import { CoursesService } from './courses.service';
 import { FieldResolversModule } from './field-resolvers/field-resolvers.module';
 import { SectionsModule } from './sections/sections.module';
 import { TagsModule } from './tags/tags.module';
-import { UserRatingsModule } from './user-ratings/user-ratings.module';
 import { ProgressModule } from './progress/progress.module';
-import { CourseUserRatingAndProgressResolver } from './field-resolvers/course-user-rating-and-progress.resolver';
+import { CourseRatingsModule } from './course-ratings/course-ratings.module';
+import { CourseRatingAndProgressResolver } from './field-resolvers/course-rating-and-progress.resolver';
 
 @Module({
 	imports: [
@@ -80,14 +80,14 @@ import { CourseUserRatingAndProgressResolver } from './field-resolvers/course-us
 		CategoriesModule,
 		SectionsModule,
 		FieldResolversModule,
-		UserRatingsModule,
+		CourseRatingsModule,
 		ProgressModule,
 	],
 	providers: [
 		CoursesResolver,
 		CoursesService,
 		CoursesRepository,
-		CourseUserRatingAndProgressResolver,
+		CourseRatingAndProgressResolver,
 	],
 })
 export class CoursesModule {}

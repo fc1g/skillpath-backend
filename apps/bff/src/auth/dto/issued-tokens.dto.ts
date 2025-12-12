@@ -1,4 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
+import { Type } from 'class-transformer';
+import { MeDto } from '@app/common';
 
 export class IssuedTokensDto {
 	@IsNotEmpty()
@@ -6,4 +8,8 @@ export class IssuedTokensDto {
 
 	@IsNotEmpty()
 	refreshToken: string;
+
+	@IsNotEmpty()
+	@Type(() => MeDto)
+	user: MeDto;
 }

@@ -6,7 +6,7 @@ import {
 } from './refresh-token-ids.storage';
 import { ACCESS_JWT } from './config/access-jwt.config';
 import { REFRESH_JWT } from './config/refresh-jwt.config';
-import { User } from '@app/common';
+import { MeDto } from '@app/common';
 import { randomUUID } from 'crypto';
 
 type TokenPair = {
@@ -22,7 +22,7 @@ export class JwtTokensService {
 		@Inject(REFRESH_JWT) private readonly refreshJwt: JwtService,
 	) {}
 
-	async issuePairForUser(user: User): Promise<TokenPair> {
+	async issuePairForUser(user: MeDto): Promise<TokenPair> {
 		const jti = randomUUID();
 		const [accessToken, refreshToken] = await Promise.all([
 			this.signAccess(user.id, { roles: user.roles }),
@@ -47,7 +47,7 @@ export class JwtTokensService {
 		}
 	}
 
-	async rotate(user: User, jti: string): Promise<TokenPair> {
+	async rotate(user: MeDto, jti: string): Promise<TokenPair> {
 		await this.verifyAndInvalidateRefresh(user.id, jti);
 
 		return this.issuePairForUser(user);

@@ -27,9 +27,10 @@ export class OauthController {
 	@Get(':provider')
 	redirect(
 		@Param('provider', new ParseEnumPipe(ProviderType)) provider: ProviderType,
+		@Req() req: Request,
 		@Res({ passthrough: true }) res: Response,
 	) {
-		return this.oauthService.redirect(res, provider);
+		return this.oauthService.redirect(req, res, provider);
 	}
 
 	@Get(':provider/callback')

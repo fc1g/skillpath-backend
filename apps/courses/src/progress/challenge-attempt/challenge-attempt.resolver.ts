@@ -1,7 +1,11 @@
 import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ChallengeAttemptService } from './challenge-attempt.service';
-import { ChallengeAttempt, PaginationQueryInput } from '@app/common';
-import { ParseUUIDPipe } from '@nestjs/common';
+import {
+	ChallengeAttempt,
+	JwtAuthGuard,
+	PaginationQueryInput,
+} from '@app/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { UpdateChallengeAttemptInput } from './dto/update-challenge-attempt.input';
 import { CreateChallengeAttemptInput } from './dto/create-challenge-attempt.input';
 import { ChallengeAttemptsWithTotalObject } from './dto/challenge-attempts-with-total.object';
@@ -12,6 +16,7 @@ export class ChallengeAttemptResolver {
 		private readonly challengeAttemptService: ChallengeAttemptService,
 	) {}
 
+	@UseGuards(JwtAuthGuard)
 	@Mutation(() => ChallengeAttempt, { name: 'createChallengeAttempt' })
 	async create(
 		@Args('createChallengeAttemptInput')
@@ -32,6 +37,7 @@ export class ChallengeAttemptResolver {
 		return this.challengeAttemptService.findOne(id);
 	}
 
+	@UseGuards(JwtAuthGuard)
 	@Mutation(() => ChallengeAttempt, { name: 'updateChallengeAttempt' })
 	async update(
 		@Args('id', { type: () => ID }, ParseUUIDPipe) id: string,
@@ -41,6 +47,7 @@ export class ChallengeAttemptResolver {
 		return this.challengeAttemptService.update(id, updateChallengeAttemptInput);
 	}
 
+	@UseGuards(JwtAuthGuard)
 	@Mutation(() => ChallengeAttempt, { name: 'removeChallengeAttempt' })
 	async delete(@Args('id', { type: () => ID }, ParseUUIDPipe) id: string) {
 		return this.challengeAttemptService.remove(id);

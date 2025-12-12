@@ -1,7 +1,7 @@
 import { Field, ID, InputType, Int } from '@nestjs/graphql';
 import { ChallengeProgressStatus } from '@app/common';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID, Min } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsUUID, Min } from 'class-validator';
 import { Expose } from 'class-transformer';
 
 @InputType()
@@ -38,12 +38,12 @@ export class CreateChallengeAttemptInput {
 	@Expose()
 	courseProgressId: string;
 
-	@Field(() => ID)
+	@Field(() => ID, { nullable: true })
 	@ApiProperty()
-	@IsNotEmpty()
+	@IsOptional()
 	@IsUUID()
 	@Expose()
-	userId: string;
+	userId?: string;
 
 	@Field(() => ID)
 	@ApiProperty()

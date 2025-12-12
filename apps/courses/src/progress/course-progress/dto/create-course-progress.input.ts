@@ -12,12 +12,12 @@ export class CreateCourseProgressInput {
 	@Expose()
 	status: CourseProgressStatus;
 
-	@Field(() => ID)
+	@Field(() => ID, { nullable: true })
 	@ApiProperty()
-	@IsNotEmpty()
+	@IsOptional()
 	@IsUUID()
 	@Expose()
-	userId: string;
+	userId?: string;
 
 	@Field(() => ID)
 	@ApiProperty()

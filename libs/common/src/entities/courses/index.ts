@@ -5,4 +5,4 @@ export * from './lesson.entity';
 export * from './quiz.entity';
 export * from './challenge.entity';
 export * from './category.entity';
-export * from './user-ratings.entity';
+export * from './course-ratings.entity';

@@ -3,6 +3,7 @@ import { OAuthUser } from '@app/common';
 import { UsersService } from '../users/users.service';
 import { JwtTokensService } from '../jwt-tokens/jwt-tokens.service';
 import { OAuthAccountsService } from './oauth-accounts/oauth-accounts.service';
+import { UserMapper } from '../users/mappers/user.mapper';
 
 @Injectable()
 export class OAuthService {
@@ -34,6 +35,11 @@ export class OAuthService {
 		}
 
 		await this.usersService.save(user);
-		return this.tokensService.issuePairForUser(user);
+		const me = UserMapper.toMeDto(user);
+		const tokens = await this.tokensService.issuePairForUser(me);
+		return {
+			user: me,
+			...tokens,
+		};
 	}
 }

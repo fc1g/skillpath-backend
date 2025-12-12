@@ -67,7 +67,7 @@ export class UsersService {
 	}
 
 	async verifyUser(email: string, password: string): Promise<User> {
-		const user = await this.usersRepository.findOne({ email });
+		const user = await this.findOneByEmail(email);
 
 		if (!user.password) {
 			throw new BadRequestException('Please sign in with your provider');
@@ -101,6 +101,18 @@ export class UsersService {
 		);
 	}
 
+	async findOneByEmail(email: string): Promise<User> {
+		return this.usersRepository.findOne(
+			{ email },
+			{
+				relations: {
+					roles: true,
+					oauthAccounts: true,
+				},
+			},
+		);
+	}
+
 	async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
 		return this.usersRepository.update({ id }, updateUserDto);
 	}
@@ -125,9 +137,7 @@ export class UsersService {
 
 	async preloadUserByEmail(createUserDto: CreateUserDto): Promise<User> {
 		try {
-			const existingUser = await this.usersRepository.findOne({
-				email: createUserDto.email,
-			});
+			const existingUser = await this.findOneByEmail(createUserDto.email);
 			if (existingUser) {
 				return existingUser;
 			}

@@ -1,7 +1,7 @@
 import { Field, ID, InputType } from '@nestjs/graphql';
 import { LessonProgressStatus } from '@app/common';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
 import { Expose } from 'class-transformer';
 import { Optional } from '@nestjs/common';
 
@@ -20,12 +20,12 @@ export class CreateLessonProgressInput {
 	@Expose()
 	courseProgressId: string | null;
 
-	@Field(() => ID)
+	@Field(() => ID, { nullable: true })
 	@ApiProperty()
-	@IsNotEmpty()
+	@IsOptional()
 	@IsUUID()
 	@Expose()
-	userId: string;
+	userId?: string;
 
 	@Field(() => ID)
 	@ApiProperty()

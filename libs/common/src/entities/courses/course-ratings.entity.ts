@@ -4,10 +4,10 @@ import { AbstractEntity } from '@app/common/database';
 import { Max, Min } from 'class-validator';
 
 @ObjectType()
-@Entity('user_ratings')
+@Entity('course_ratings')
 @Index(['userId', 'courseId'], { unique: true })
 @Index(['courseId'])
-export class UserRating extends AbstractEntity<UserRating> {
+export class CourseRating extends AbstractEntity<CourseRating> {
 	@Field(() => ID)
 	@Column('uuid', { name: 'user_id' })
 	userId: string;

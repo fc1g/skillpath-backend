@@ -17,11 +17,21 @@ export class AuthService {
 	) {}
 
 	async signup(createUserDto: CreateUserDto, res: Response) {
-		await this.processAuth<CreateUserDto>(res, 'auth/signup', createUserDto);
+		const { user } = await this.processAuth<CreateUserDto>(
+			res,
+			'auth/signup',
+			createUserDto,
+		);
+		return user;
 	}
 
 	async login(createUserDto: CreateUserDto, res: Response) {
-		await this.processAuth<CreateUserDto>(res, 'auth/login', createUserDto);
+		const { user } = await this.processAuth<CreateUserDto>(
+			res,
+			'auth/login',
+			createUserDto,
+		);
+		return user;
 	}
 
 	async logout(req: Request, res: Response) {
@@ -84,7 +94,7 @@ export class AuthService {
 		data?: T,
 		headers?: RawAxiosRequestHeaders,
 	) {
-		const { accessToken, refreshToken } =
+		const { accessToken, refreshToken, user } =
 			await this.httpService.post<IssuedTokensDto>(url, data, { headers });
 
 		this.cookieService.setCookie(
@@ -103,6 +113,7 @@ export class AuthService {
 		return {
 			accessToken,
 			refreshToken,
+			user,
 		};
 	}
 

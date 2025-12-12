@@ -8,6 +8,9 @@ export class OAuthCallbackQueryDto {
 	scope?: string;
 
 	@IsOptional()
+	state?: string;
+
+	@IsOptional()
 	authuser?: number;
 
 	@IsOptional()
