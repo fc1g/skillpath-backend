@@ -32,15 +32,6 @@ export class InitialSchema1763748947735 implements MigrationInterface {
 			`CREATE UNIQUE INDEX "IDX_f34e3a227170e0ce674e0afb58" ON "lesson_progress" ("user_id", "lesson_id") `,
 		);
 		await queryRunner.query(
-			`CREATE TABLE "user_ratings" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "user_id" uuid NOT NULL, "course_id" uuid NOT NULL, "rating" smallint NOT NULL, "review" text, CONSTRAINT "PK_9de3e405c7a1a3a8ce4c0715993" PRIMARY KEY ("id"))`,
-		);
-		await queryRunner.query(
-			`CREATE INDEX "IDX_05458c90c4a18c2dab1a474e8b" ON "user_ratings" ("course_id") `,
-		);
-		await queryRunner.query(
-			`CREATE UNIQUE INDEX "IDX_27948c289ffe27c32fba0fc76a" ON "user_ratings" ("user_id", "course_id") `,
-		);
-		await queryRunner.query(
 			`CREATE TYPE "public"."roles_name_enum" AS ENUM('user', 'admin')`,
 		);
 		await queryRunner.query(
@@ -111,6 +102,15 @@ export class InitialSchema1763748947735 implements MigrationInterface {
 		);
 		await queryRunner.query(
 			`CREATE UNIQUE INDEX "IDX_420d9f679d41281f282f5bc7d0" ON "categories" ("slug") `,
+		);
+		await queryRunner.query(
+			`CREATE TABLE "course_ratings" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "user_id" uuid NOT NULL, "course_id" uuid NOT NULL, "rating" smallint NOT NULL, "review" text, CONSTRAINT "PK_ea1fcdbcda76cdeb72ea8cf4530" PRIMARY KEY ("id"))`,
+		);
+		await queryRunner.query(
+			`CREATE INDEX "IDX_32b68ae69d8fb9200a854d6b33" ON "course_ratings" ("course_id") `,
+		);
+		await queryRunner.query(
+			`CREATE UNIQUE INDEX "IDX_7fdd747e5701a947bc44350d1a" ON "course_ratings" ("user_id", "course_id") `,
 		);
 		await queryRunner.query(
 			`CREATE TYPE "public"."course_level" AS ENUM('beginner', 'intermediate', 'advanced')`,
@@ -266,6 +266,13 @@ export class InitialSchema1763748947735 implements MigrationInterface {
 		await queryRunner.query(`DROP TABLE "courses"`);
 		await queryRunner.query(`DROP TYPE "public"."course_level"`);
 		await queryRunner.query(
+			`DROP INDEX "public"."IDX_7fdd747e5701a947bc44350d1a"`,
+		);
+		await queryRunner.query(
+			`DROP INDEX "public"."IDX_32b68ae69d8fb9200a854d6b33"`,
+		);
+		await queryRunner.query(`DROP TABLE "course_ratings"`);
+		await queryRunner.query(
 			`DROP INDEX "public"."IDX_420d9f679d41281f282f5bc7d0"`,
 		);
 		await queryRunner.query(`DROP TABLE "categories"`);
@@ -301,13 +308,6 @@ export class InitialSchema1763748947735 implements MigrationInterface {
 		);
 		await queryRunner.query(`DROP TABLE "roles"`);
 		await queryRunner.query(`DROP TYPE "public"."roles_name_enum"`);
-		await queryRunner.query(
-			`DROP INDEX "public"."IDX_27948c289ffe27c32fba0fc76a"`,
-		);
-		await queryRunner.query(
-			`DROP INDEX "public"."IDX_05458c90c4a18c2dab1a474e8b"`,
-		);
-		await queryRunner.query(`DROP TABLE "user_ratings"`);
 		await queryRunner.query(
 			`DROP INDEX "public"."IDX_f34e3a227170e0ce674e0afb58"`,
 		);
