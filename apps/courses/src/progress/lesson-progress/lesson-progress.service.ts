@@ -90,7 +90,9 @@ export class LessonProgressService {
 			const courseProgress = await courseProgressRepo.findOne({
 				where: {
 					userId: updateLessonProgressInput.userId,
-					courseId: updateLessonProgressInput.courseId,
+					course: {
+						id: updateLessonProgressInput.courseId,
+					},
 				},
 			});
 

@@ -1,4 +1,4 @@
-import { HttpService, UserDto } from '@app/common';
+import { HttpService, MeDto } from '@app/common';
 import { Injectable } from '@nestjs/common';
 import type { Request } from 'express';
 import { RequestService } from '../../request/request.service';
@@ -10,11 +10,29 @@ export class UsersService {
 		private readonly requestService: RequestService,
 	) {}
 
-	async getMe(req: Request): Promise<UserDto> {
+	async getMe(req: Request): Promise<MeDto> {
 		const headers = this.requestService.extractHeaders(req);
 		this.requestService.validateAuth(headers);
 
-		return this.httpService.get<UserDto>('users/me', {
+		return this.httpService.get<MeDto>('users/me', {
+			headers,
+		});
+	}
+
+	async updateUser(req: Request, userId: string): Promise<MeDto> {
+		const headers = this.requestService.extractHeaders(req);
+		this.requestService.validateAuth(headers);
+
+		return this.httpService.patch<MeDto>(`users/${userId}`, req.body, {
+			headers,
+		});
+	}
+
+	async updatePassword(req: Request, userId: string): Promise<MeDto> {
+		const headers = this.requestService.extractHeaders(req);
+		this.requestService.validateAuth(headers);
+
+		return this.httpService.patch<MeDto>(`users/${userId}/password`, req.body, {
 			headers,
 		});
 	}

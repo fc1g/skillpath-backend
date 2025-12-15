@@ -30,7 +30,7 @@ export class MeDto {
 		example: 'octocat',
 	})
 	@Expose()
-	name: string | null;
+	username: string | null;
 
 	@Field(() => [RoleType])
 	@ApiProperty({

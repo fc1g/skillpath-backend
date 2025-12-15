@@ -24,4 +24,12 @@ export class CreateUserDto {
 		nullable: true,
 	})
 	password?: string | null;
+
+	@IsOptional()
+	@ApiProperty({
+		description: 'User username/handle (optional)',
+		example: 'octocat',
+		nullable: true,
+	})
+	username?: string;
 }

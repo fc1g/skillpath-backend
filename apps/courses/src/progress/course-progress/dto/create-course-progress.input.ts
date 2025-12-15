@@ -3,6 +3,7 @@ import { CourseProgressStatus } from '@app/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
 import { Expose, Type } from 'class-transformer';
+import { LastVisitedItemType } from '@app/common/enums/last-visited-item-type.enum';
 
 @InputType()
 export class CreateCourseProgressInput {
@@ -32,6 +33,12 @@ export class CreateCourseProgressInput {
 	@IsUUID()
 	@Expose()
 	lastVisitedItemId: string | null;
+
+	@Field(() => LastVisitedItemType, { nullable: true })
+	@ApiProperty()
+	@IsOptional()
+	@Expose()
+	lastVisitedItemType: LastVisitedItemType | null;
 
 	@Field(() => Date)
 	@ApiProperty()

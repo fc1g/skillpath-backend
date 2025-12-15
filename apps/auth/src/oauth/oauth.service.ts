@@ -34,6 +34,10 @@ export class OAuthService {
 			user.oauthAccounts = [oauthAccount];
 		}
 
+		if (!user.username && oauthAccount.username) {
+			user.username = oauthAccount.username;
+		}
+
 		await this.usersService.save(user);
 		const me = UserMapper.toMeDto(user);
 		const tokens = await this.tokensService.issuePairForUser(me);

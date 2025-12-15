@@ -9,6 +9,7 @@ import { CourseProgressRepository } from './course-progress.repository';
 import {
 	Course,
 	CourseProgress,
+	CourseProgressStatus,
 	DEFAULT_TAKE,
 	Lesson,
 	LessonProgressStatus,
@@ -42,7 +43,9 @@ export class CourseProgressService {
 		const courseProgress = plainToClass(CourseProgress, {
 			status: createCourseProgressInput.status,
 			userId: createCourseProgressInput.userId,
-			courseId: createCourseProgressInput.courseId,
+			course: {
+				id: createCourseProgressInput.courseId,
+			},
 			lastAccessedAt: createCourseProgressInput.lastAccessedAt,
 			lessonsProgresses: [],
 			challengesProgress: [],
@@ -99,11 +102,32 @@ export class CourseProgressService {
 	}
 
 	async find(
+		userId: string,
 		paginationQueryInput: PaginationQueryInput,
 	): Promise<CourseProgressesWithTotalObject> {
 		return this.courseProgressRepository.findWithTotal(
-			{},
 			{
+				userId,
+			},
+			{
+				order: { lastAccessedAt: 'DESC' },
+				skip: paginationQueryInput.offset ?? 0,
+				take: paginationQueryInput.limit ?? DEFAULT_TAKE,
+			},
+		);
+	}
+
+	async findCompletedCourses(
+		userId: string,
+		paginationQueryInput: PaginationQueryInput,
+	): Promise<CourseProgressesWithTotalObject> {
+		return this.courseProgressRepository.findWithTotal(
+			{
+				userId,
+				status: CourseProgressStatus.COMPLETED,
+			},
+			{
+				order: { lastAccessedAt: 'DESC' },
 				skip: paginationQueryInput.offset ?? 0,
 				take: paginationQueryInput.limit ?? DEFAULT_TAKE,
 			},
@@ -120,13 +144,26 @@ export class CourseProgressService {
 		return this.courseProgressRepository.findOne(where);
 	}
 
+	async findLastVisitedCourse(userId: string): Promise<CourseProgress> {
+		return this.courseProgressRepository.findOne(
+			{
+				userId,
+			},
+			{
+				order: { lastAccessedAt: 'DESC' },
+			},
+		);
+	}
+
 	async update(
 		userId: string,
 		updateCourseProgressInput: UpdateCourseProgressInput,
 	): Promise<CourseProgress> {
 		const courseProgress = await this.findOneBy({
 			userId,
-			courseId: updateCourseProgressInput.courseId,
+			course: {
+				id: updateCourseProgressInput.courseId,
+			},
 		});
 		return this.courseProgressRepository.update(
 			{ id: courseProgress.id },
@@ -145,7 +182,9 @@ export class CourseProgressService {
 			const existingCourseProgress =
 				await this.courseProgressRepository.findOne({
 					userId: createCourseProgressInput.userId,
-					courseId: createCourseProgressInput.courseId,
+					course: {
+						id: createCourseProgressInput.courseId,
+					},
 				});
 			if (existingCourseProgress) {
 				return existingCourseProgress;

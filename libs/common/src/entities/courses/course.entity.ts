@@ -9,8 +9,9 @@ import {
 	JoinTable,
 	ManyToMany,
 	OneToMany,
+	OneToOne,
 } from 'typeorm';
-import { Section, Tag } from '@app/common/entities';
+import { CourseProgress, Section, Tag } from '@app/common/entities';
 import { CourseLevel } from '@app/common/enums';
 import slugify from 'slugify';
 import { Category } from '@app/common/entities/courses/category.entity';
@@ -104,6 +105,12 @@ export class Course extends AbstractEntity<Course> {
 		cascade: true,
 	})
 	sections: Section[];
+
+	@Field(() => CourseProgress)
+	@OneToOne(() => CourseProgress, progress => progress.course, {
+		cascade: true,
+	})
+	progress: CourseProgress;
 
 	@BeforeInsert()
 	@BeforeUpdate()

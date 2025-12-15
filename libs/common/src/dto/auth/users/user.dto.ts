@@ -20,6 +20,9 @@ export class UserDto {
 	password: string | null;
 
 	@Expose()
+	username?: string;
+
+	@Expose()
 	@Type(() => RoleDto)
 	@ApiProperty({
 		description: 'Assigned roles',

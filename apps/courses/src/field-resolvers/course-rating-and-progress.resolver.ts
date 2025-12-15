@@ -22,7 +22,9 @@ export class CourseRatingAndProgressResolver {
 	): Promise<CourseRatingAndProgressObject> {
 		const courseProgress = await this.courseProgressService.findOneBy({
 			userId: user.id,
-			courseId,
+			course: {
+				id: courseId,
+			},
 		});
 
 		const courseRating = await this.courseRatingsService.findOneBy({

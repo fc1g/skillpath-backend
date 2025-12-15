@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
 @Injectable({ scope: Scope.REQUEST })
-export class LessonsByCourseLoader extends DataLoader<
+export class LessonsByCourseProgressLoader extends DataLoader<
 	string,
 	LessonProgress[]
 > {
@@ -31,6 +31,11 @@ export class LessonsByCourseLoader extends DataLoader<
 			},
 		});
 
-		return coursesWithLessons.map(course => course.lessonsProgresses);
+		const courseIdToLessons = new Map<string, LessonProgress[]>();
+		coursesWithLessons.forEach(course => {
+			courseIdToLessons.set(course.id, course.lessonsProgresses);
+		});
+
+		return coursesIds.map(courseId => courseIdToLessons.get(courseId) || []);
 	}
 }

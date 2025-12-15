@@ -19,6 +19,9 @@ export class User extends AbstractEntity<User> {
 	@Column('varchar', { nullable: true })
 	password: string | null;
 
+	@Column('varchar', { length: 30, nullable: true })
+	username?: string;
+
 	@ManyToMany(() => Role, { cascade: ['insert'] })
 	@JoinTable({
 		name: 'user_roles',

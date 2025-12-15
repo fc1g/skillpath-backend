@@ -5,7 +5,7 @@ export class UserMapper {
 		return {
 			id: user.id,
 			email: user.email,
-			name: user.oauthAccounts?.[0]?.username ?? null,
+			username: user.username ?? user.oauthAccounts?.[0]?.username ?? null,
 			roles: user.roles.map(role => role.name),
 			providers: user.oauthAccounts.map(oauthAccount => oauthAccount.provider),
 			hasPassword: !!user?.password,

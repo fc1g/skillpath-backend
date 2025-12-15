@@ -7,6 +7,8 @@ import { CoursesRepository } from '../courses.repository';
 import { Course, DatabaseModule } from '@app/common';
 import { CourseSectionsResolver } from './course-sections.resolver';
 import { SectionsByCourseLoader } from '../data-loaders/sections-by-course.loader';
+import { ProgressByCourseLoader } from '../data-loaders/progress-by-course.loader';
+import { CourseProgressResolver } from './course-progress.resolver';
 
 @Module({
 	imports: [DatabaseModule.forFeature([Course])],
@@ -15,9 +17,11 @@ import { SectionsByCourseLoader } from '../data-loaders/sections-by-course.loade
 		TagsByCourseLoader,
 		CategoriesByCourseLoader,
 		SectionsByCourseLoader,
+		ProgressByCourseLoader,
 		CourseTagsResolver,
 		CourseCategoriesResolver,
 		CourseSectionsResolver,
+		CourseProgressResolver,
 	],
 	exports: [
 		CourseTagsResolver,

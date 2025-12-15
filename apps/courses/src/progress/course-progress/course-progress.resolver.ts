@@ -4,22 +4,22 @@ import {
 	CourseProgress,
 	CurrentUser,
 	JwtAuthGuard,
-	MeDto,
 	PaginationQueryInput,
+	User,
 } from '@app/common';
 import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { UpdateCourseProgressInput } from './dto/update-course-progress.input';
 import { CreateCourseProgressInput } from './dto/create-course-progress.input';
 import { CourseProgressesWithTotalObject } from './dto/course-progresses-with-total.object';
 
+@UseGuards(JwtAuthGuard)
 @Resolver(() => CourseProgress)
 export class CourseProgressResolver {
 	constructor(private readonly courseProgressService: CourseProgressService) {}
 
-	@UseGuards(JwtAuthGuard)
 	@Mutation(() => CourseProgress, { name: 'createCourseProgress' })
 	async create(
-		@CurrentUser() user: MeDto,
+		@CurrentUser() user: User,
 		@Args('createCourseProgressInput')
 		createCourseProgressInput: CreateCourseProgressInput,
 	) {
@@ -31,9 +31,21 @@ export class CourseProgressResolver {
 
 	@Query(() => CourseProgressesWithTotalObject, { name: 'courseProgresses' })
 	async findAll(
+		@CurrentUser() user: User,
 		@Args('paginationQueryInput') paginationQueryInput: PaginationQueryInput,
 	) {
-		return this.courseProgressService.find(paginationQueryInput);
+		return this.courseProgressService.find(user.id, paginationQueryInput);
+	}
+
+	@Query(() => CourseProgressesWithTotalObject, { name: 'completedCourses' })
+	async findCompletedCourses(
+		@CurrentUser() user: User,
+		@Args('paginationQueryInput') paginationQueryInput: PaginationQueryInput,
+	) {
+		return this.courseProgressService.findCompletedCourses(
+			user.id,
+			paginationQueryInput,
+		);
 	}
 
 	@Query(() => CourseProgress, { name: 'courseProgress' })
@@ -41,22 +53,27 @@ export class CourseProgressResolver {
 		return this.courseProgressService.findOne(id);
 	}
 
-	@UseGuards(JwtAuthGuard)
 	@Query(() => CourseProgress, { name: 'courseProgressBy' })
 	async findOneBy(
-		@CurrentUser() user: MeDto,
+		@CurrentUser() user: User,
 		@Args('courseId', { type: () => ID }, ParseUUIDPipe) courseId: string,
 	) {
 		return this.courseProgressService.findOneBy({
 			userId: user.id,
-			courseId,
+			course: {
+				id: courseId,
+			},
 		});
 	}
 
-	@UseGuards(JwtAuthGuard)
+	@Query(() => CourseProgress, { name: 'lastVisitedCourse' })
+	async findLastVisitedCourse(@CurrentUser() user: User) {
+		return this.courseProgressService.findLastVisitedCourse(user.id);
+	}
+
 	@Mutation(() => CourseProgress, { name: 'updateCourseProgress' })
 	async update(
-		@CurrentUser() user: MeDto,
+		@CurrentUser() user: User,
 		@Args('updateCourseProgressInput')
 		updateCourseProgressInput: UpdateCourseProgressInput,
 	) {
@@ -66,7 +83,6 @@ export class CourseProgressResolver {
 		);
 	}
 
-	@UseGuards(JwtAuthGuard)
 	@Mutation(() => CourseProgress, { name: 'removeCourseProgress' })
 	async delete(@Args('id', { type: () => ID }, ParseUUIDPipe) id: string) {
 		return this.courseProgressService.remove(id);

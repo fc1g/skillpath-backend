@@ -1,5 +1,4 @@
 import {
-	BadRequestException,
 	ConflictException,
 	Injectable,
 	InternalServerErrorException,
@@ -14,6 +13,7 @@ import {
 	DEFAULT_TAKE,
 	POSTGRES_UNIQUE_VIOLATION,
 	RoleType,
+	UpdatePasswordDto,
 	UpdateUserDto,
 	UpdateUserRolesDto,
 	User,
@@ -66,11 +66,15 @@ export class UsersService {
 		return this.usersRepository.create(user);
 	}
 
-	async verifyUser(email: string, password: string): Promise<User> {
+	async verifyUser(email: string, password: string | null): Promise<User> {
 		const user = await this.findOneByEmail(email);
 
-		if (!user.password) {
-			throw new BadRequestException('Please sign in with your provider');
+		if (user.password === null) {
+			return user;
+		}
+
+		if (password === null) {
+			throw new UnauthorizedException('Credentials are not valid');
 		}
 
 		const passwordMatch = await bcrypt.compare(password, user.password);
@@ -113,8 +117,42 @@ export class UsersService {
 		);
 	}
 
-	async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+	async update(
+		user: User,
+		id: string,
+		updateUserDto: UpdateUserDto,
+	): Promise<User> {
+		if (user.id !== id)
+			throw new UnauthorizedException(
+				'You are not authorized to update this user',
+			);
+
+		delete updateUserDto?.email;
+
 		return this.usersRepository.update({ id }, updateUserDto);
+	}
+
+	async updatePassword(
+		user: User,
+		id: string,
+		updatePasswordDto: UpdatePasswordDto,
+	): Promise<User> {
+		if (user.id !== id)
+			throw new UnauthorizedException(
+				'You are not authorized to update this user',
+			);
+
+		await this.verifyUser(user.email, updatePasswordDto.currentPassword);
+
+		return this.usersRepository.update(
+			{ id },
+			{
+				password: await bcrypt.hash(
+					updatePasswordDto.newPassword,
+					BCRYPT_ROUNDS,
+				),
+			},
+		);
 	}
 
 	async updateUserRoles(

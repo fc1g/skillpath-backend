@@ -3,6 +3,7 @@ import { ChallengeAttemptModule } from './challenge-attempt/challenge-attempt.mo
 import { CourseProgressModule } from './course-progress/course-progress.module';
 import { LessonProgressModule } from './lesson-progress/lesson-progress.module';
 import { FieldResolversModule } from './field-resolvers/field-resolvers.module';
+import { ChallengeDraftModule } from './challenge-draft/challenge-draft.module';
 
 @Module({
 	imports: [
@@ -10,6 +11,7 @@ import { FieldResolversModule } from './field-resolvers/field-resolvers.module';
 		CourseProgressModule,
 		LessonProgressModule,
 		FieldResolversModule,
+		ChallengeDraftModule,
 	],
 	exports: [CourseProgressModule],
 })

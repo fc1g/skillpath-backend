@@ -17,10 +17,10 @@ import {
 	Roles,
 	RoleType,
 	Serialize,
+	UpdatePasswordDto,
 	UpdateUserDto,
 	UpdateUserRolesDto,
 	User,
-	UserDto,
 	UsersDto,
 } from '@app/common';
 import { AccessJwtGuard } from '../guards/access-jwt.guard';
@@ -46,23 +46,34 @@ export class UsersController {
 
 	@Roles(RoleType.ADMIN)
 	@Get(':id')
-	@Serialize(UserDto)
+	@Serialize(MeDto)
 	async findOne(@Param('id', new ParseUUIDPipe()) id: string): Promise<User> {
 		return this.usersService.findOne(id);
 	}
 
 	@Patch(':id')
-	@Serialize(UserDto)
+	@Serialize(MeDto)
 	async update(
+		@CurrentUser() user: User,
+		@Body() updateUserDto: UpdateUserDto,
 		@Param('id', new ParseUUIDPipe()) id: string,
-		updateUserDto: UpdateUserDto,
 	): Promise<User> {
-		return this.usersService.update(id, updateUserDto);
+		return this.usersService.update(user, id, updateUserDto);
+	}
+
+	@Patch(':id/password')
+	@Serialize(MeDto)
+	async updatePassword(
+		@CurrentUser() user: User,
+		@Body() updatePasswordDto: UpdatePasswordDto,
+		@Param('id', new ParseUUIDPipe()) id: string,
+	): Promise<User> {
+		return this.usersService.updatePassword(user, id, updatePasswordDto);
 	}
 
 	@Roles(RoleType.ADMIN)
 	@Patch(':id/roles')
-	@Serialize(UserDto)
+	@Serialize(MeDto)
 	async updateUserRoles(
 		@Param('id', new ParseUUIDPipe()) id: string,
 		@Body() updateUserRolesDto: UpdateUserRolesDto,
@@ -72,7 +83,7 @@ export class UsersController {
 
 	@Delete(':id')
 	@HttpCode(HttpStatus.NO_CONTENT)
-	async delete(@Param('id', new ParseUUIDPipe()) id: string): Promise<User> {
-		return this.usersService.remove(id);
+	async delete(@CurrentUser() user: User): Promise<User> {
+		return this.usersService.remove(user.id);
 	}
 }
