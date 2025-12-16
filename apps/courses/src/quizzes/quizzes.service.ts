@@ -14,16 +14,22 @@ import {
 import { UpdateLessonInput } from '../lessons/dto/update-lesson.input';
 import { CreateQuizInput } from './dto/create-quiz.input';
 import { plainToClass } from 'class-transformer';
-import { QueryFailedError } from 'typeorm';
+import { DataSource, EntityManager, QueryFailedError } from 'typeorm';
 import { QuizzesWithTotalObject } from './dto/quizzes-with-total.object';
 
 @Injectable()
 export class QuizzesService {
 	private readonly logger: Logger = new Logger(QuizzesService.name);
 
-	constructor(private readonly quizzesRepository: QuizzesRepository) {}
+	constructor(
+		private readonly quizzesRepository: QuizzesRepository,
+		private readonly dataSource: DataSource,
+	) {}
 
-	async create(createQuizInput: CreateQuizInput): Promise<Quiz> {
+	async create(
+		createQuizInput: CreateQuizInput,
+		providedManager?: EntityManager,
+	): Promise<Quiz> {
 		const quiz = plainToClass(Quiz, {
 			question: createQuizInput.question,
 			type: createQuizInput.type,
@@ -36,23 +42,33 @@ export class QuizzesService {
 			},
 		});
 
-		try {
-			return await this.quizzesRepository.create(quiz);
-		} catch (err) {
-			this.logger.error('Failed to create quiz', err);
-			if (
-				err instanceof QueryFailedError &&
-				(err.driverError as { code: string }).code === POSTGRES_UNIQUE_VIOLATION
-			) {
-				throw new ConflictException(
-					'Quiz with this order for provided lesson already exists',
+		const executeCreate = async (manager: EntityManager) => {
+			try {
+				const quizRepo = manager.getRepository(Quiz);
+				return await quizRepo.save(quiz);
+			} catch (err) {
+				this.logger.error('Failed to create quiz', err);
+				if (
+					err instanceof QueryFailedError &&
+					(err.driverError as { code: string }).code ===
+						POSTGRES_UNIQUE_VIOLATION
+				) {
+					throw new ConflictException(
+						'Quiz with this order for provided lesson already exists',
+					);
+				}
+
+				throw new InternalServerErrorException(
+					'Unable to create quiz, please try again later',
 				);
 			}
+		};
 
-			throw new InternalServerErrorException(
-				'Unable to create quiz, please try again later',
-			);
+		if (providedManager) {
+			return executeCreate(providedManager);
 		}
+
+		return this.dataSource.transaction(executeCreate);
 	}
 
 	async find(
@@ -79,7 +95,10 @@ export class QuizzesService {
 		return this.quizzesRepository.remove({ id });
 	}
 
-	async preloadQuiz(createQuizInput: CreateQuizInput): Promise<Quiz> {
+	async preloadQuiz(
+		createQuizInput: CreateQuizInput,
+		manager?: EntityManager,
+	): Promise<Quiz> {
 		try {
 			const existingQuiz = await this.quizzesRepository.findOne({
 				lesson: {
@@ -96,6 +115,6 @@ export class QuizzesService {
 			}
 		}
 
-		return this.create(createQuizInput);
+		return this.create(createQuizInput, manager);
 	}
 }

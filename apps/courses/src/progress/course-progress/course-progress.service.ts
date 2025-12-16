@@ -43,6 +43,7 @@ export class CourseProgressService {
 		const courseProgress = plainToClass(CourseProgress, {
 			status: createCourseProgressInput.status,
 			userId: createCourseProgressInput.userId,
+			courseId: createCourseProgressInput.courseId,
 			course: {
 				id: createCourseProgressInput.courseId,
 			},
@@ -54,6 +55,7 @@ export class CourseProgressService {
 		return this.dataSource.transaction(async manager => {
 			const lessonRepo = manager.getRepository(Lesson);
 			const courseRepo = manager.getRepository(Course);
+			const courseProgressRepo = manager.getRepository(CourseProgress);
 			const lessons = await lessonRepo.find({
 				where: {
 					courseId: createCourseProgressInput.courseId,
@@ -67,21 +69,23 @@ export class CourseProgressService {
 			);
 
 			try {
-				const newCourseProgress =
-					await this.courseProgressRepository.create(courseProgress);
+				const newCourseProgress = await courseProgressRepo.save(courseProgress);
 
 				newCourseProgress.lessonsProgresses = await Promise.all(
 					lessons.map(lesson =>
-						this.lessonProgressService.preloadLessonProgress({
-							status: LessonProgressStatus.NOT_STARTED,
-							courseProgressId: newCourseProgress.id,
-							userId: newCourseProgress.userId,
-							lessonId: lesson.id,
-						}),
+						this.lessonProgressService.preloadLessonProgress(
+							{
+								status: LessonProgressStatus.NOT_STARTED,
+								courseProgressId: newCourseProgress.id,
+								userId: newCourseProgress.userId,
+								lessonId: lesson.id,
+							},
+							manager,
+						),
 					),
 				);
 
-				return this.courseProgressRepository.create(newCourseProgress);
+				return await courseProgressRepo.save(newCourseProgress);
 			} catch (err) {
 				this.logger.error('Failed to create course progress', err);
 				if (

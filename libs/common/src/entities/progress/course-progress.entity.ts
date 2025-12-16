@@ -4,8 +4,8 @@ import {
 	Entity,
 	Index,
 	JoinColumn,
+	ManyToOne,
 	OneToMany,
-	OneToOne,
 } from 'typeorm';
 import { AbstractEntity } from '@app/common/database';
 import { CourseProgressStatus } from '@app/common/enums/course-progress-status.enum';
@@ -16,7 +16,7 @@ import { LastVisitedItemType } from '@app/common/enums/last-visited-item-type.en
 
 @ObjectType()
 @Entity('course_progress')
-@Index(['userId', 'course'], { unique: true })
+@Index(['userId', 'courseId'], { unique: true })
 export class CourseProgress extends AbstractEntity<CourseProgress> {
 	@Field(() => CourseProgressStatus)
 	@Column('enum', {
@@ -36,6 +36,10 @@ export class CourseProgress extends AbstractEntity<CourseProgress> {
 	@Field(() => ID)
 	@Column('uuid', { name: 'user_id' })
 	userId: string;
+
+	@Field(() => ID)
+	@Column('uuid', { name: 'course_id' })
+	courseId: string;
 
 	@Field(() => ID, { nullable: true })
 	@Column('uuid', { name: 'last_visited_item_id', nullable: true })
@@ -70,7 +74,7 @@ export class CourseProgress extends AbstractEntity<CourseProgress> {
 	challengesAttempts: ChallengeAttempt[];
 
 	@Field(() => Course)
-	@OneToOne(() => Course, course => course.progress, {
+	@ManyToOne(() => Course, course => course.progresses, {
 		onDelete: 'CASCADE',
 	})
 	@JoinColumn({ name: 'course_id' })

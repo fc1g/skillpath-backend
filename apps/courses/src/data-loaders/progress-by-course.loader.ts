@@ -5,7 +5,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
 @Injectable({ scope: Scope.REQUEST })
-export class ProgressByCourseLoader extends DataLoader<string, CourseProgress> {
+export class ProgressByCourseLoader extends DataLoader<
+	string,
+	CourseProgress[]
+> {
 	constructor(
 		@InjectRepository(Course)
 		private readonly coursesRepository: Repository<Course>,
@@ -15,19 +18,24 @@ export class ProgressByCourseLoader extends DataLoader<string, CourseProgress> {
 
 	private async batchLoadFn(
 		coursesIds: readonly string[],
-	): Promise<CourseProgress[]> {
+	): Promise<CourseProgress[][]> {
 		const coursesWithProgress = await this.coursesRepository.find({
 			select: {
 				id: true,
 			},
 			relations: {
-				progress: true,
+				progresses: true,
 			},
 			where: {
 				id: In(coursesIds as string[]),
 			},
 		});
 
-		return coursesWithProgress.map(course => course.progress);
+		const courseIdToProgress = new Map<string, CourseProgress[]>();
+		coursesWithProgress.forEach(course => {
+			courseIdToProgress.set(course.id, course.progresses);
+		});
+
+		return coursesIds.map(courseId => courseIdToProgress.get(courseId) || []);
 	}
 }

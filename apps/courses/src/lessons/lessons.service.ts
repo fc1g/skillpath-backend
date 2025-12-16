@@ -17,7 +17,7 @@ import {
 import { UpdateLessonInput } from './dto/update-lesson.input';
 import { plainToClass } from 'class-transformer';
 import { CreateLessonInput } from './dto/create-lesson.input';
-import { DataSource, QueryFailedError } from 'typeorm';
+import { DataSource, EntityManager, QueryFailedError } from 'typeorm';
 import { QuizzesService } from '../quizzes/quizzes.service';
 import { LessonsWithTotalObject } from './dto/lessons-with-total.object';
 
@@ -31,7 +31,10 @@ export class LessonsService {
 		private readonly dataSource: DataSource,
 	) {}
 
-	async create(createLessonInput: CreateLessonInput): Promise<Lesson> {
+	async create(
+		createLessonInput: CreateLessonInput,
+		providedManager?: EntityManager,
+	): Promise<Lesson> {
 		if (!createLessonInput.courseId) {
 			throw new BadRequestException('Course ID was not provided');
 		}
@@ -40,8 +43,9 @@ export class LessonsService {
 			throw new BadRequestException('Section ID was not provided');
 		}
 
-		return this.dataSource.transaction(async manager => {
+		const executeCreate = async (manager: EntityManager) => {
 			const courseRepo = manager.getRepository(Course);
+			const lessonRepo = manager.getRepository(Lesson);
 
 			const lesson = plainToClass(Lesson, {
 				title: createLessonInput.title,
@@ -56,13 +60,16 @@ export class LessonsService {
 			});
 
 			try {
-				const newLesson = await this.lessonsRepository.create(lesson);
+				const newLesson = await lessonRepo.save(lesson);
 				newLesson.quizzes = await Promise.all(
 					createLessonInput.quizzes.map(createQuizInput =>
-						this.quizzesService.preloadQuiz({
-							...createQuizInput,
-							lessonId: newLesson.id,
-						}),
+						this.quizzesService.preloadQuiz(
+							{
+								...createQuizInput,
+								lessonId: newLesson.id,
+							},
+							manager,
+						),
 					),
 				);
 				await courseRepo.increment(
@@ -75,7 +82,7 @@ export class LessonsService {
 					'lessonsCount',
 					1,
 				);
-				return this.lessonsRepository.create(newLesson);
+				return await lessonRepo.save(newLesson);
 			} catch (err) {
 				this.logger.error('Failed to create lesson', err);
 				if (
@@ -90,7 +97,13 @@ export class LessonsService {
 					'Unable to create section, please try again later',
 				);
 			}
-		});
+		};
+
+		if (providedManager) {
+			return executeCreate(providedManager);
+		}
+
+		return this.dataSource.transaction(executeCreate);
 	}
 
 	async find(
@@ -120,7 +133,10 @@ export class LessonsService {
 		return this.lessonsRepository.remove({ id });
 	}
 
-	async preloadLesson(createLessonInput: CreateLessonInput): Promise<Lesson> {
+	async preloadLesson(
+		createLessonInput: CreateLessonInput,
+		manager?: EntityManager,
+	): Promise<Lesson> {
 		try {
 			const existingLesson = await this.lessonsRepository.findOne({
 				title: createLessonInput.title,
@@ -136,6 +152,6 @@ export class LessonsService {
 			}
 		}
 
-		return this.create(createLessonInput);
+		return this.create(createLessonInput, manager);
 	}
 }

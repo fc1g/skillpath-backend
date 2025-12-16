@@ -16,7 +16,7 @@ import {
 } from '@app/common';
 import { UpdateLessonProgressInput } from './dto/update-lesson-progress.input';
 import { CreateLessonProgressInput } from './dto/create-lesson-progress.input';
-import { DataSource, QueryFailedError } from 'typeorm';
+import { DataSource, EntityManager, QueryFailedError } from 'typeorm';
 import { plainToClass } from 'class-transformer';
 import { LessonProgressesWithTotalObject } from './dto/lesson-progresses-with-total.object';
 
@@ -31,6 +31,7 @@ export class LessonProgressService {
 
 	async create(
 		createLessonProgressInput: CreateLessonProgressInput,
+		providedManager?: EntityManager,
 	): Promise<LessonProgress> {
 		const lessonProgress = plainToClass(LessonProgress, {
 			status: createLessonProgressInput.status,
@@ -42,23 +43,33 @@ export class LessonProgressService {
 			quizzesAttempts: [],
 		});
 
-		try {
-			return await this.lessonProgressRepository.create(lessonProgress);
-		} catch (err) {
-			this.logger.error('Failed to create lesson progress', err);
-			if (
-				err instanceof QueryFailedError &&
-				(err.driverError as { code: string }).code === POSTGRES_UNIQUE_VIOLATION
-			) {
-				throw new ConflictException(
-					'Lesson progress with this user and lesson already exists',
+		const executeCreate = async (manager: EntityManager) => {
+			try {
+				const lessonProgressRepo = manager.getRepository(LessonProgress);
+				return await lessonProgressRepo.save(lessonProgress);
+			} catch (err) {
+				this.logger.error('Failed to create lesson progress', err);
+				if (
+					err instanceof QueryFailedError &&
+					(err.driverError as { code: string }).code ===
+						POSTGRES_UNIQUE_VIOLATION
+				) {
+					throw new ConflictException(
+						'Lesson progress with this user and lesson already exists',
+					);
+				}
+
+				throw new InternalServerErrorException(
+					'Unable to create lesson progress, please try again later',
 				);
 			}
+		};
 
-			throw new InternalServerErrorException(
-				'Unable to create lesson progress, please try again later',
-			);
+		if (providedManager) {
+			return executeCreate(providedManager);
 		}
+
+		return this.dataSource.transaction(executeCreate);
 	}
 
 	async find(
@@ -87,6 +98,7 @@ export class LessonProgressService {
 
 		return this.dataSource.transaction(async manager => {
 			const courseProgressRepo = manager.getRepository(CourseProgress);
+			const lessonProgressRepo = manager.getRepository(LessonProgress);
 			const courseProgress = await courseProgressRepo.findOne({
 				where: {
 					userId: updateLessonProgressInput.userId,
@@ -124,12 +136,10 @@ export class LessonProgressService {
 				);
 			}
 
-			return await this.lessonProgressRepository.update(
-				{ id: existingLessonProgress.id },
-				{
-					status: updateLessonProgressInput.status,
-				},
-			);
+			return await lessonProgressRepo.save({
+				...existingLessonProgress,
+				status: updateLessonProgressInput.status,
+			});
 		});
 	}
 
@@ -139,6 +149,7 @@ export class LessonProgressService {
 
 	async preloadLessonProgress(
 		createLessonProgressInput: CreateLessonProgressInput,
+		manager?: EntityManager,
 	): Promise<LessonProgress> {
 		try {
 			const existingLessonProgress =
@@ -155,6 +166,6 @@ export class LessonProgressService {
 			}
 		}
 
-		return this.create(createLessonProgressInput);
+		return this.create(createLessonProgressInput, manager);
 	}
 }

@@ -8,7 +8,7 @@ export class CourseProgressResolver {
 		private readonly progressByCourseLoader: ProgressByCourseLoader,
 	) {}
 
-	@ResolveField('progress', () => CourseProgress)
+	@ResolveField('progresses', () => CourseProgress)
 	async getProgressOfCourse(@Parent() course: Course) {
 		return this.progressByCourseLoader.load(course.id);
 	}

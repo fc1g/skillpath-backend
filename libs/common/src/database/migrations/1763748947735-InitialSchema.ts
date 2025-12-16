@@ -122,7 +122,7 @@ export class InitialSchema1763748947735 implements MigrationInterface {
 			`CREATE TYPE "public"."last_visited_item_type" AS ENUM('lesson', 'challenge')`,
 		);
 		await queryRunner.query(
-			`CREATE TABLE "course_progress" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "status" "public"."course_progress_status" NOT NULL, "completed_lessons_count" integer NOT NULL DEFAULT '0', "completed_challenges_count" integer NOT NULL DEFAULT '0', "user_id" uuid NOT NULL, "last_visited_item_id" uuid, "lastVisitedItemType" "public"."last_visited_item_type", "last_accessed_at" TIMESTAMP WITH TIME ZONE, "completed_at" TIMESTAMP WITH TIME ZONE, "course_id" uuid, CONSTRAINT "REL_468b14b39d8428b77d8630bd5c" UNIQUE ("course_id"), CONSTRAINT "PK_eadd1b31d44023e533eb847c4f7" PRIMARY KEY ("id"))`,
+			`CREATE TABLE "course_progress" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "status" "public"."course_progress_status" NOT NULL, "completed_lessons_count" integer NOT NULL DEFAULT '0', "completed_challenges_count" integer NOT NULL DEFAULT '0', "user_id" uuid NOT NULL, "course_id" uuid NOT NULL, "last_visited_item_id" uuid, "lastVisitedItemType" "public"."last_visited_item_type", "last_accessed_at" TIMESTAMP WITH TIME ZONE, "completed_at" TIMESTAMP WITH TIME ZONE, CONSTRAINT "PK_eadd1b31d44023e533eb847c4f7" PRIMARY KEY ("id"))`,
 		);
 		await queryRunner.query(
 			`CREATE UNIQUE INDEX "IDX_578f66595af7b446be0f546468" ON "course_progress" ("user_id", "course_id") `,

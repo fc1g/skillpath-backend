@@ -16,7 +16,7 @@ import { CreateChallengeInput } from './dto/create-challenge.input';
 import { UpdateChallengeInput } from './dto/update-challenge.input';
 import { ChallengesRepository } from './challenges.repository';
 import { plainToClass } from 'class-transformer';
-import { DataSource, QueryFailedError } from 'typeorm';
+import { DataSource, EntityManager, QueryFailedError } from 'typeorm';
 import { ChallengesWithTotalObject } from './dto/challenges-with-total.object';
 
 @Injectable()
@@ -28,7 +28,10 @@ export class ChallengesService {
 		private readonly dataSource: DataSource,
 	) {}
 
-	async create(createChallengeInput: CreateChallengeInput): Promise<Challenge> {
+	async create(
+		createChallengeInput: CreateChallengeInput,
+		providedManager?: EntityManager,
+	): Promise<Challenge> {
 		if (!createChallengeInput.courseId) {
 			throw new BadRequestException('Course ID was not provided');
 		}
@@ -37,8 +40,9 @@ export class ChallengesService {
 			throw new BadRequestException('Section ID was not provided');
 		}
 
-		return this.dataSource.transaction(async manager => {
+		const executeCreate = async (manager: EntityManager) => {
 			const courseRepo = manager.getRepository(Course);
+			const challengeRepo = manager.getRepository(Challenge);
 
 			const challenge = plainToClass(Challenge, {
 				path: createChallengeInput.path,
@@ -59,13 +63,13 @@ export class ChallengesService {
 			});
 
 			try {
-				const newChallenge = await this.challengesRepository.create(challenge);
+				const newChallenge = await challengeRepo.save(challenge);
 				await courseRepo.increment(
 					{ id: createChallengeInput.courseId },
 					'challengesCount',
 					1,
 				);
-				return this.challengesRepository.create(newChallenge);
+				return newChallenge;
 			} catch (err) {
 				this.logger.error('Failed to create challenge', err);
 				if (
@@ -82,7 +86,13 @@ export class ChallengesService {
 					'Unable to create challenge, please try again later',
 				);
 			}
-		});
+		};
+
+		if (providedManager) {
+			return executeCreate(providedManager);
+		}
+
+		return this.dataSource.transaction(executeCreate);
 	}
 
 	async find(
@@ -114,6 +124,7 @@ export class ChallengesService {
 
 	async preloadChallenge(
 		createChallengeInput: CreateChallengeInput,
+		manager?: EntityManager,
 	): Promise<Challenge> {
 		try {
 			const existingChallenge = await this.challengesRepository.findOne({
@@ -131,6 +142,6 @@ export class ChallengesService {
 			}
 		}
 
-		return this.create(createChallengeInput);
+		return this.create(createChallengeInput, manager);
 	}
 }

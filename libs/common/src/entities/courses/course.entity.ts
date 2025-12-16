@@ -9,7 +9,6 @@ import {
 	JoinTable,
 	ManyToMany,
 	OneToMany,
-	OneToOne,
 } from 'typeorm';
 import { CourseProgress, Section, Tag } from '@app/common/entities';
 import { CourseLevel } from '@app/common/enums';
@@ -107,10 +106,10 @@ export class Course extends AbstractEntity<Course> {
 	sections: Section[];
 
 	@Field(() => CourseProgress)
-	@OneToOne(() => CourseProgress, progress => progress.course, {
+	@OneToMany(() => CourseProgress, progress => progress.course, {
 		cascade: true,
 	})
-	progress: CourseProgress;
+	progresses: CourseProgress[];
 
 	@BeforeInsert()
 	@BeforeUpdate()

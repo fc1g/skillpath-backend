@@ -3,6 +3,7 @@ import {
 	DEFAULT_TAKE,
 	PaginationQueryInput,
 	POSTGRES_UNIQUE_VIOLATION,
+	Section,
 } from '@app/common';
 import {
 	ConflictException,
@@ -11,7 +12,7 @@ import {
 	Logger,
 } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
-import { ILike, QueryFailedError } from 'typeorm';
+import { DataSource, ILike, QueryFailedError } from 'typeorm';
 import { CategoriesService } from './categories/categories.service';
 import { CoursesRepository } from './courses.repository';
 import { CoursesPaginationQueryInput } from './dto/courses-pagination-query.input';
@@ -30,6 +31,7 @@ export class CoursesService {
 		private readonly tagsService: TagsService,
 		private readonly categoriesService: CategoriesService,
 		private readonly sectionsService: SectionsService,
+		private readonly dataSource: DataSource,
 	) {}
 
 	async create(createCourseInput: CreateCourseInput): Promise<Course> {
@@ -51,32 +53,57 @@ export class CoursesService {
 			sections: [],
 		});
 
-		try {
-			const newCourse = await this.coursesRepository.create(course);
+		return this.dataSource.transaction(async manager => {
+			const courseRepo = manager.getRepository(Course);
 
-			const sections = await Promise.all(
-				createCourseInput.sections.map(createSectionInput =>
-					this.sectionsService.preloadSection({
-						...createSectionInput,
-						courseId: newCourse.id,
-					}),
-				),
-			);
+			let newCourse: Course;
+			let sections: Section[];
 
-			return this.update(newCourse.id, { sections });
-		} catch (err) {
-			this.logger.error('Failed to create course', err);
-			if (
-				err instanceof QueryFailedError &&
-				(err.driverError as { code: string }).code === POSTGRES_UNIQUE_VIOLATION
-			) {
-				throw new ConflictException('Course with this title already exists');
+			try {
+				newCourse = await courseRepo.save(course);
+
+				sections = await Promise.all(
+					createCourseInput.sections.map(createSectionInput =>
+						this.sectionsService.preloadSection(
+							{
+								...createSectionInput,
+								courseId: newCourse.id,
+							},
+							manager,
+						),
+					),
+				);
+			} catch (err) {
+				this.logger.error('Failed to create course', err);
+
+				if (
+					err instanceof QueryFailedError &&
+					(err.driverError as { code: string }).code ===
+						POSTGRES_UNIQUE_VIOLATION
+				) {
+					throw new ConflictException('Course with this title already exists');
+				}
+
+				throw new InternalServerErrorException(
+					'Unable to create course, please try again later',
+				);
 			}
 
-			throw new InternalServerErrorException(
-				'Unable to create course, please try again later',
-			);
-		}
+			const freshCourse = await courseRepo.findOne({
+				where: { id: newCourse.id },
+			});
+
+			if (!freshCourse) {
+				this.logger.error('Course not found after creation');
+				throw new InternalServerErrorException(
+					'Course not found after creation',
+				);
+			}
+
+			freshCourse.sections = sections;
+
+			return await courseRepo.save(freshCourse);
+		});
 	}
 
 	async find(
