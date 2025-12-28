@@ -1,18 +1,19 @@
-import { Module } from '@nestjs/common';
-import { NotificationsController } from './notifications.controller';
-import { NotificationsService } from './notifications.service';
 import {
+	baseSchema,
 	ConfigModule,
 	HealthModule,
 	LoggerModule,
 	RmqModule,
 } from '@app/common';
-import * as Joi from 'joi';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { ConfigService } from '@nestjs/config';
-import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as Joi from 'joi';
+import { join } from 'path';
+import { NotificationsController } from './notifications.controller';
 import { NotificationsFactory } from './notifications.factory';
+import { NotificationsService } from './notifications.service';
 
 @Module({
 	imports: [
@@ -22,6 +23,8 @@ import { NotificationsFactory } from './notifications.factory';
 			isGlobal: true,
 			validationSchemas: [
 				Joi.object({
+					HTTP_PORT: Joi.number().port().required(),
+
 					RABBITMQ_URI: Joi.string().uri().required(),
 
 					SMTP_USER: Joi.string().email().required(),
@@ -31,6 +34,7 @@ import { NotificationsFactory } from './notifications.factory';
 
 					FRONTEND_URL: Joi.string().uri().required(),
 				}),
+				baseSchema,
 			],
 		}),
 		MailerModule.forRootAsync({
