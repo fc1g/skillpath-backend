@@ -5,10 +5,23 @@ import { ValidationPipe } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 void (async function bootstrap() {
 	const app = await NestFactory.create(BffModule);
 	const configService: ConfigService = app.get(ConfigService);
+
+	app.connectMicroservice<MicroserviceOptions>({
+		transport: Transport.RMQ,
+		options: {
+			urls: [configService.getOrThrow<string>('RABBITMQ_URI')],
+			noAck: false,
+			queue: 'bff.events',
+			queueOptions: {
+				durable: true,
+			},
+		},
+	});
 
 	app.use(cookieParser());
 	app.useGlobalPipes(
@@ -51,6 +64,7 @@ void (async function bootstrap() {
 	const document = SwaggerModule.createDocument(app, options);
 	SwaggerModule.setup('/', app, document);
 
+	await app.startAllMicroservices();
 	await app.listen(
 		configService.getOrThrow<number>('HTTP_PORT'),
 		configService.getOrThrow<string>('HTTP_HOST'),

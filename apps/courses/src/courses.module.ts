@@ -17,15 +17,15 @@ import type { Request } from 'express';
 import * as Joi from 'joi';
 import { join } from 'path';
 import { CategoriesModule } from './categories/categories.module';
+import { CourseRatingsModule } from './course-ratings/course-ratings.module';
 import { CoursesRepository } from './courses.repository';
 import { CoursesResolver } from './courses.resolver';
 import { CoursesService } from './courses.service';
+import { CourseRatingAndProgressResolver } from './field-resolvers/course-rating-and-progress.resolver';
 import { FieldResolversModule } from './field-resolvers/field-resolvers.module';
+import { ProgressModule } from './progress/progress.module';
 import { SectionsModule } from './sections/sections.module';
 import { TagsModule } from './tags/tags.module';
-import { ProgressModule } from './progress/progress.module';
-import { CourseRatingsModule } from './course-ratings/course-ratings.module';
-import { CourseRatingAndProgressResolver } from './field-resolvers/course-rating-and-progress.resolver';
 
 @Module({
 	imports: [
@@ -70,9 +70,6 @@ import { CourseRatingAndProgressResolver } from './field-resolvers/course-rating
 			buildSchemaOptions: {
 				numberScalarMode: 'integer',
 				dateScalarMode: 'timestamp',
-			},
-			subscriptions: {
-				'graphql-ws': true,
 			},
 			context: ({ req }: { req: Request }) => ({ req }),
 		}),

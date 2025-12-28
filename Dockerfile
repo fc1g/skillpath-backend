@@ -27,7 +27,7 @@ ENV HTTP_PORT=${HTTP_PORT}
 
 ENV NODE_ENV=development
 
-COPY apps/${SERVICE_NAME} apps/${SERVICE_NAME}/
+COPY apps/${SERVICE_NAME}/ apps/${SERVICE_NAME}/
 COPY certs certs
 COPY libs libs
 

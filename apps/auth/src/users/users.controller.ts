@@ -17,7 +17,6 @@ import {
 	Roles,
 	RoleType,
 	Serialize,
-	UpdatePasswordDto,
 	UpdateUserDto,
 	UpdateUserRolesDto,
 	User,
@@ -59,16 +58,6 @@ export class UsersController {
 		@Param('id', new ParseUUIDPipe()) id: string,
 	): Promise<User> {
 		return this.usersService.update(user, id, updateUserDto);
-	}
-
-	@Patch(':id/password')
-	@Serialize(MeDto)
-	async updatePassword(
-		@CurrentUser() user: User,
-		@Body() updatePasswordDto: UpdatePasswordDto,
-		@Param('id', new ParseUUIDPipe()) id: string,
-	): Promise<User> {
-		return this.usersService.updatePassword(user, id, updatePasswordDto);
 	}
 
 	@Roles(RoleType.ADMIN)

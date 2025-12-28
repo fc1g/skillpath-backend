@@ -27,13 +27,4 @@ export class UsersService {
 			headers,
 		});
 	}
-
-	async updatePassword(req: Request, userId: string): Promise<MeDto> {
-		const headers = this.requestService.extractHeaders(req);
-		this.requestService.validateAuth(headers);
-
-		return this.httpService.patch<MeDto>(`users/${userId}/password`, req.body, {
-			headers,
-		});
-	}
 }

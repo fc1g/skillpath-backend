@@ -3,6 +3,7 @@ import {
 	Controller,
 	HttpCode,
 	HttpStatus,
+	Patch,
 	Post,
 	Req,
 	Res,
@@ -20,13 +21,23 @@ import {
 	ApiTags,
 	ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { CreateUserDto } from '@app/common';
+import {
+	ChangePasswordDto,
+	CreateUserDto,
+	ForgotPasswordDto,
+	ResetPasswordDto,
+	SetPasswordDto,
+} from '@app/common';
 import type { Request, Response } from 'express';
+import { AuthAwareHttpClientService } from './auth-aware.service';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-	constructor(private readonly authService: AuthService) {}
+	constructor(
+		private readonly authService: AuthService,
+		private readonly authAwareHttpClientService: AuthAwareHttpClientService,
+	) {}
 
 	@Post('signup')
 	@HttpCode(HttpStatus.CREATED)
@@ -104,5 +115,61 @@ export class AuthController {
 		@Res({ passthrough: true }) res: Response,
 	) {
 		return this.authService.rotateTokens(req, res);
+	}
+
+	@Patch('set-password')
+	@HttpCode(HttpStatus.NO_CONTENT)
+	@ApiOperation({ summary: 'Set user password after registration' })
+	@ApiBody({ type: SetPasswordDto, description: 'User credentials' })
+	@ApiNoContentResponse({ description: 'Password set successful' })
+	@ApiBadRequestResponse({ description: 'Invalid password' })
+	async setPassword(
+		@Req() req: Request,
+		@Res({ passthrough: true }) res: Response,
+		@Body() setPasswordDto: SetPasswordDto,
+	) {
+		return this.authAwareHttpClientService.execute(req, res, () =>
+			this.authService.setPassword(req, setPasswordDto),
+		);
+	}
+
+	@Patch('change-password')
+	@HttpCode(HttpStatus.NO_CONTENT)
+	@ApiOperation({ summary: 'Change user password' })
+	@ApiBody({ type: ChangePasswordDto, description: 'User credentials' })
+	@ApiNoContentResponse({ description: 'Password changed successful' })
+	@ApiBadRequestResponse({ description: 'Invalid password' })
+	async changePassword(
+		@Req() req: Request,
+		@Res({ passthrough: true }) res: Response,
+		@Body() changePasswordDto: ChangePasswordDto,
+	) {
+		return this.authAwareHttpClientService.execute(req, res, () =>
+			this.authService.changePassword(req, changePasswordDto),
+		);
+	}
+
+	@Post('forgot-password')
+	@HttpCode(HttpStatus.NO_CONTENT)
+	@ApiOperation({ summary: 'Send password reset link to user email' })
+	@ApiBody({ type: ForgotPasswordDto, description: 'User credentials' })
+	@ApiNoContentResponse({ description: 'Password reset link sent' })
+	@ApiBadRequestResponse({ description: 'Invalid email' })
+	async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+		return this.authService.forgotPassword(forgotPasswordDto);
+	}
+
+	@Post('reset-password')
+	@HttpCode(HttpStatus.NO_CONTENT)
+	@ApiOperation({ summary: 'Reset user password using reset link' })
+	@ApiBody({ type: ResetPasswordDto, description: 'User credentials' })
+	@ApiNoContentResponse({ description: 'Password reset successful' })
+	@ApiBadRequestResponse({ description: 'Invalid reset link' })
+	async resetPassword(
+		@Req() req: Request,
+		@Res({ passthrough: true }) res: Response,
+		@Body() resetPasswordDto: ResetPasswordDto,
+	) {
+		return this.authService.resetPassword(req, res, resetPasswordDto);
 	}
 }

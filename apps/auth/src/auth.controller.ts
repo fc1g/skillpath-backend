@@ -3,16 +3,21 @@ import {
 	Controller,
 	HttpCode,
 	HttpStatus,
+	Patch,
 	Post,
 	UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
+	ChangePasswordDto,
 	CreateUserDto,
 	CurrentUser,
+	ForgotPasswordDto,
 	MeDto,
 	RefreshTokenPayloadInterface,
+	ResetPasswordDto,
 	Serialize,
+	SetPasswordDto,
 	User,
 } from '@app/common';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -54,6 +59,34 @@ export class AuthController {
 		@CurrentUser() refreshTokenPayload: RefreshTokenPayloadInterface,
 	) {
 		return this.authService.rotateTokens(refreshTokenPayload);
+	}
+
+	@UseGuards(AccessJwtGuard)
+	@Patch('set-password')
+	async setPassword(
+		@CurrentUser() user: User,
+		@Body() setPasswordDto: SetPasswordDto,
+	) {
+		return this.authService.setPassword(user, setPasswordDto);
+	}
+
+	@UseGuards(AccessJwtGuard)
+	@Patch('change-password')
+	async changePassword(
+		@CurrentUser() user: User,
+		@Body() changePasswordDto: ChangePasswordDto,
+	) {
+		return this.authService.changePassword(user, changePasswordDto);
+	}
+
+	@Post('forgot-password')
+	async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+		return this.authService.forgotPassword(forgotPasswordDto);
+	}
+
+	@Post('reset-password')
+	async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+		return this.authService.resetPassword(resetPasswordDto);
 	}
 
 	@UseGuards(AccessJwtGuard)

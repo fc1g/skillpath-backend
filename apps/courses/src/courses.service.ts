@@ -19,8 +19,8 @@ import { CoursesPaginationQueryInput } from './dto/courses-pagination-query.inpu
 import { CoursesWithTotalObject } from './dto/courses-with-total.object';
 import { CreateCourseInput } from './dto/create-course.input';
 import { UpdateCourseInput } from './dto/update-course.input';
-import { TagsService } from './tags/tags.service';
 import { SectionsService } from './sections/sections.service';
+import { TagsService } from './tags/tags.service';
 
 @Injectable()
 export class CoursesService {

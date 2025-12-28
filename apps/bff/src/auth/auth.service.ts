@@ -1,10 +1,17 @@
+import {
+	ChangePasswordDto,
+	CreateUserDto,
+	ForgotPasswordDto,
+	HttpService,
+	ResetPasswordDto,
+	SetPasswordDto,
+} from '@app/common';
 import { Injectable, Logger } from '@nestjs/common';
-import { CreateUserDto, HttpService } from '@app/common';
-import { CookieService } from './cookie/cookie.service';
-import type { Request, Response } from 'express';
 import { RawAxiosRequestHeaders } from 'axios';
-import { IssuedTokensDto } from './dto/issued-tokens.dto';
+import type { Request, Response } from 'express';
 import { RequestService } from '../request/request.service';
+import { CookieService } from './cookie/cookie.service';
+import { IssuedTokensDto } from './dto/issued-tokens.dto';
 
 @Injectable()
 export class AuthService {
@@ -86,6 +93,37 @@ export class AuthService {
 		req.headers.cookie = cookiePairs.join('; ');
 
 		return tokens;
+	}
+
+	async setPassword(req: Request, setPasswordDto: SetPasswordDto) {
+		const headers = this.requestService.extractHeaders(req);
+		this.requestService.validateAuth(headers);
+
+		return this.httpService.patch('auth/set-password', setPasswordDto, {
+			headers,
+		});
+	}
+
+	async changePassword(req: Request, changePasswordDto: ChangePasswordDto) {
+		const headers = this.requestService.extractHeaders(req);
+		this.requestService.validateAuth(headers);
+
+		return this.httpService.patch('auth/change-password', changePasswordDto, {
+			headers,
+		});
+	}
+
+	async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+		await this.httpService.post('auth/forgot-password', forgotPasswordDto);
+	}
+
+	async resetPassword(
+		req: Request,
+		res: Response,
+		resetPasswordDto: ResetPasswordDto,
+	) {
+		await this.httpService.post('auth/reset-password', resetPasswordDto);
+		return this.logout(req, res);
 	}
 
 	private async processAuth<T>(

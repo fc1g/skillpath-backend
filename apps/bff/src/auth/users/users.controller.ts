@@ -49,19 +49,4 @@ export class UsersController {
 			this.usersService.updateUser(req, userId),
 		);
 	}
-
-	@Patch(':id/password')
-	@ApiOperation({ summary: 'Update current user password' })
-	@ApiOkResponse({
-		type: MeDto,
-	})
-	async updatePassword(
-		@Req() req: Request,
-		@Res({ passthrough: true }) res: Response,
-		@Param('id', new ParseUUIDPipe()) userId: string,
-	): Promise<MeDto> {
-		return this.authAwareHttpClientService.execute<MeDto>(req, res, () =>
-			this.usersService.updatePassword(req, userId),
-		);
-	}
 }

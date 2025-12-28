@@ -1,4 +1,5 @@
 import {
+	BadRequestException,
 	ConflictException,
 	Injectable,
 	InternalServerErrorException,
@@ -13,7 +14,6 @@ import {
 	DEFAULT_TAKE,
 	POSTGRES_UNIQUE_VIOLATION,
 	RoleType,
-	UpdatePasswordDto,
 	UpdateUserDto,
 	UpdateUserRolesDto,
 	User,
@@ -66,15 +66,13 @@ export class UsersService {
 		return this.usersRepository.create(user);
 	}
 
-	async verifyUser(email: string, password: string | null): Promise<User> {
+	async verifyUser(email: string, password: string): Promise<User> {
 		const user = await this.findOneByEmail(email);
 
 		if (user.password === null) {
-			return user;
-		}
-
-		if (password === null) {
-			throw new UnauthorizedException('Credentials are not valid');
+			throw new UnauthorizedException(
+				`Please login with OAuth provider (${user.oauthAccounts[0].provider})`,
+			);
 		}
 
 		const passwordMatch = await bcrypt.compare(password, user.password);
@@ -128,30 +126,39 @@ export class UsersService {
 			);
 
 		delete updateUserDto?.email;
+		delete updateUserDto?.password;
 
 		return this.usersRepository.update({ id }, updateUserDto);
 	}
 
-	async updatePassword(
+	async setPassword(user: User, newPassword: string) {
+		if (user.password) {
+			throw new BadRequestException('Password already set');
+		}
+
+		return this.updatePassword(
+			user.id,
+			await bcrypt.hash(newPassword, BCRYPT_ROUNDS),
+		);
+	}
+
+	async changePassword(
 		user: User,
-		id: string,
-		updatePasswordDto: UpdatePasswordDto,
-	): Promise<User> {
-		if (user.id !== id)
-			throw new UnauthorizedException(
-				'You are not authorized to update this user',
-			);
+		currentPassword: string,
+		newPassword: string,
+	) {
+		await this.verifyUser(user.email, currentPassword);
 
-		await this.verifyUser(user.email, updatePasswordDto.currentPassword);
+		return this.updatePassword(
+			user.id,
+			await bcrypt.hash(newPassword, BCRYPT_ROUNDS),
+		);
+	}
 
-		return this.usersRepository.update(
-			{ id },
-			{
-				password: await bcrypt.hash(
-					updatePasswordDto.newPassword,
-					BCRYPT_ROUNDS,
-				),
-			},
+	async resetPassword(usrId: string, newPassword: string) {
+		await this.updatePassword(
+			usrId,
+			await bcrypt.hash(newPassword, BCRYPT_ROUNDS),
 		);
 	}
 
@@ -185,5 +192,12 @@ export class UsersService {
 			}
 		}
 		return this.create(createUserDto);
+	}
+
+	private async updatePassword(userId: string, hashedPassword: string) {
+		return this.usersRepository.update(
+			{ id: userId },
+			{ password: hashedPassword },
+		);
 	}
 }
