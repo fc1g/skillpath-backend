@@ -26,6 +26,7 @@ import { NotificationsService } from './notifications.service';
 					HTTP_PORT: Joi.number().port().required(),
 
 					RABBITMQ_URI: Joi.string().uri().required(),
+					NOTIFICATIONS_QUEUE: Joi.string().required(),
 
 					SMTP_USER: Joi.string().email().required(),
 					GOOGLE_OAUTH_CLIENT_ID: Joi.string().required(),

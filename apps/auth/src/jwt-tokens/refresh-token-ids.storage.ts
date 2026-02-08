@@ -1,9 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { RedisService } from '@app/common';
 import refreshJwtConfig from './config/refresh-jwt.config';
 import { ConfigType } from '@nestjs/config';
 
-export class InvalidatedRefreshTokenError extends Error {
+export class InvalidatedRefreshTokenError extends BadRequestException {
 	constructor(public readonly reason: 'MISSING' | 'MISMATCH') {
 		super(`Refresh token invalid: ${reason}`);
 	}

@@ -1,9 +1,9 @@
-import { NestFactory } from '@nestjs/core';
-import { NotificationsModule } from './notifications.module';
-import { ConfigService } from '@nestjs/config';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { Logger } from 'nestjs-pino';
+import { NotificationsModule } from './notifications.module';
 
 void (async function bootstrap() {
 	const app = await NestFactory.create(NotificationsModule);
@@ -14,7 +14,7 @@ void (async function bootstrap() {
 		options: {
 			urls: [configService.getOrThrow<string>('RABBITMQ_URI')],
 			noAck: false,
-			queue: 'notifications',
+			queue: configService.getOrThrow<string>('NOTIFICATIONS_QUEUE'),
 			queueOptions: {
 				durable: true,
 			},

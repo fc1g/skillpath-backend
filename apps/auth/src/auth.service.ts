@@ -1,6 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { UsersService } from './users/users.service';
 import {
+	AUTH_PASSWORD_RESET_COMPLETED,
+	AUTH_PASSWORD_RESET_REQUESTED,
 	ChangePasswordDto,
 	CreateUserDto,
 	ForgotPasswordDto,
@@ -83,7 +85,7 @@ export class AuthService {
 
 		const token = await this.oneTimeTokenService.insert(user.id);
 
-		this.notificationsService.emit('auth.password_reset.requested', {
+		this.notificationsService.emit(AUTH_PASSWORD_RESET_REQUESTED, {
 			email,
 			token,
 			ttlLabel:
@@ -101,7 +103,7 @@ export class AuthService {
 
 		await this.usersService.resetPassword(userId, newPassword);
 
-		this.notificationsService.emit('auth.password_reset.completed', {
+		this.notificationsService.emit(AUTH_PASSWORD_RESET_COMPLETED, {
 			email: user.email,
 			username: user?.username,
 		});

@@ -3,7 +3,11 @@ import { NotificationsService } from './notifications.service';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { PasswordResetRequestDto } from './dto/password-reset-request.dto';
 import { PasswordResetCompletedDto } from './dto/password-reset-completed.dto';
-import { RmqService } from '@app/common';
+import {
+	AUTH_PASSWORD_RESET_COMPLETED,
+	AUTH_PASSWORD_RESET_REQUESTED,
+	RmqService,
+} from '@app/common';
 
 @Controller()
 export class NotificationsController {
@@ -14,7 +18,7 @@ export class NotificationsController {
 		private readonly rmqService: RmqService,
 	) {}
 
-	@EventPattern('auth.password_reset.requested')
+	@EventPattern(AUTH_PASSWORD_RESET_REQUESTED)
 	async handlePasswordResetCommand(
 		@Payload() data: PasswordResetRequestDto,
 		@Ctx() context: RmqContext,
@@ -32,7 +36,7 @@ export class NotificationsController {
 		);
 	}
 
-	@EventPattern('auth.password_reset.completed')
+	@EventPattern(AUTH_PASSWORD_RESET_COMPLETED)
 	async handlePasswordResetCompletedCommand(
 		@Payload() data: PasswordResetCompletedDto,
 		@Ctx() context: RmqContext,

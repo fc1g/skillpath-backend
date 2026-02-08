@@ -1,4 +1,3 @@
-import { Module } from '@nestjs/common';
 import {
 	authSchema,
 	baseSchema,
@@ -11,16 +10,17 @@ import {
 	oauthSchema,
 	redisSchema,
 } from '@app/common';
+import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import * as Joi from 'joi';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtTokensModule } from './jwt-tokens/jwt-tokens.module';
-import { UsersModule } from './users/users.module';
-import { StrategiesModule } from './strategies/strategies.module';
 import { OAuthModule } from './oauth/oauth.module';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ConfigService } from '@nestjs/config';
 import { OneTimeTokenModule } from './one-time-token/one-time-token.module';
+import { StrategiesModule } from './strategies/strategies.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
 	imports: [
@@ -36,6 +36,7 @@ import { OneTimeTokenModule } from './one-time-token/one-time-token.module';
 					TCP_PORT: Joi.number().port().required(),
 
 					RABBITMQ_URI: Joi.string().uri().required(),
+					NOTIFICATIONS_QUEUE: Joi.string().required(),
 
 					DATABASE_ADMIN_EMAIL: Joi.string().email().required(),
 					DATABASE_ADMIN_PASSWORD: Joi.string().required(),
@@ -62,7 +63,7 @@ import { OneTimeTokenModule } from './one-time-token/one-time-token.module';
 					transport: Transport.RMQ,
 					options: {
 						urls: [config.getOrThrow<string>('RABBITMQ_URI')],
-						queue: 'notifications',
+						queue: config.getOrThrow<string>('NOTIFICATIONS_QUEUE'),
 						queueOptions: {
 							durable: true,
 						},
